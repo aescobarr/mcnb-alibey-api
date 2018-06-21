@@ -1,0 +1,12 @@
+// config.js
+'use strict';
+
+module.exports = {
+  secret: 'some_secret',
+  database_host: 'localhost',
+  database_port: the_port_number,
+  database_name: the_database_name,
+  database_user: the_database_user,
+  database_password: the_database_user_password,
+};
+
