@@ -2,7 +2,8 @@
 
 var promise = require('bluebird');
 var jwt = require('jsonwebtoken');
-var config = require('./config.js');
+// var config = require('./config.js');
+var config = require('./config.js').get(process.env.NODE_ENV);
 var squel = require('squel');
 var util = require('util');
 var moment = require('moment');
@@ -734,7 +735,7 @@ function getComment(req, res, next) {
     q_select.where('c.id = ?', id);
   } else {
     if (idversio){
-      q_select.where('r.id = ?', idversio);
+      q_select.where('t.id = ?', idversio);
     }
   }
 

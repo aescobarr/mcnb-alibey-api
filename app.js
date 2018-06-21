@@ -49,12 +49,7 @@ router.get('/tipustoponim', VerifyToken, db.getTipusToponims);
 router.get('/toponimsgeo', VerifyToken, db.getToponimsGeo);
 router.get('/toponim', VerifyToken, db.getToponim);
 router.post('/comment_new', VerifyToken, upload.single('file'), db.postComment);
-router.post(
-  '/comment_edit',
-  VerifyToken,
-  upload.single('file'),
-  db.editComment
-);
+router.post('/comment_edit', VerifyToken, upload.single('file'), db.editComment);
 router.post('/comment_delete', VerifyToken, db.deleteComment);
 router.get('/comment', VerifyToken, db.getComment);
 router.get('/arbre', VerifyToken, db.getArbre);
