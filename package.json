@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "lint": "eslint --ignore-path .gitignore .",
-    "test": "mocha --timeout 100",
+    "test": "mocha --timeout 100 --exit",    
     "devstart": "nodemon --inspect app.js"
   },
   "author": "",

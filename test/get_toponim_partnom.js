@@ -64,4 +64,56 @@ describe('GET /toponimspartnom', function() {
       });
   });
 
+  it('Obtains 40 toponims, ordered desc by date', function(done) {
+    chai.request('http://127.0.0.1:8080/api')
+      .get('/toponimspartnom')
+      .set('x-access-token', token)
+      .query({ results: 40, dir: 'desc', sort: 'data' })
+      .end(function(err, res) {
+        expect(res).to.have.status(200);
+        assert.equal(res.body.records.length, 40);
+        assert.equal(res.body.records[0].nomtoponim, 'la Salut');
+        done();
+      });
+  });
+
+  it('Obtains 40 toponims, ordered desc by aquatic', function(done) {
+    chai.request('http://127.0.0.1:8080/api')
+      .get('/toponimspartnom')
+      .set('x-access-token', token)
+      .query({ results: 40, dir: 'desc', sort: 'aquatic' })
+      .end(function(err, res) {
+        expect(res).to.have.status(200);
+        assert.equal(res.body.records.length, 40);
+        assert.equal(res.body.records[0].nomtoponim, 'Port Lligat');
+        done();
+      });
+  });
+
+  it('Obtains 40 toponims, by toponim type (ocean)', function(done) {
+    chai.request('http://127.0.0.1:8080/api')
+      .get('/toponimspartnom')
+      .set('x-access-token', token)
+      .query({ results: 40, idtipus: 'furibe84606125209773342800' })
+      .end(function(err, res) {
+        expect(res).to.have.status(200);
+        assert.equal(res.body.records.length, 1);
+        assert.equal(res.body.records[0].nomtoponim, 'Pacífic, oceà');
+        done();
+      });
+  });
+
+  it('40 toponims, default sort', function(done) {
+    chai.request('http://127.0.0.1:8080/api')
+      .get('/toponimspartnom')
+      .set('x-access-token', token)
+      .query({ results: 40, startIndex: 40 })
+      .end(function(err, res) {
+        expect(res).to.have.status(200);
+        assert.equal(res.body.records.length, 40);
+        assert.equal(res.body.records[0].nomtoponim, 'Ain Leuh');
+        done();
+      });
+  });
+
 });

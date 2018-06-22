@@ -229,6 +229,7 @@ function getToponimsPartNom(req, res, next) {
     .field('nom')
     .field('aquatic')
     .field('tipus')
+    .field('idtipus')
     .field('datacaptura')
     .field('coordenadaxcentroide')
     .field('coordenadaycentroide')
@@ -251,7 +252,7 @@ function getToponimsPartNom(req, res, next) {
   }
 
   if (idtipus){
-    q.where('idtipustoponim = ?', idtipus);
+    q.where('idtipus = ?', idtipus);
   }
 
   if (results && !isNaN(parseInt(results, 10))){
