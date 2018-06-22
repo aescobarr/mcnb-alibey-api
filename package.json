@@ -4,9 +4,9 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "devstart": "nodemon --inspect app.js",
-    "pretest": "eslint --ignore-path .gitignore ."
+    "lint": "eslint --ignore-path .gitignore .",
+    "test": "mocha --timeout 100",
+    "devstart": "nodemon --inspect app.js"
   },
   "author": "",
   "license": "ISC",
@@ -24,9 +24,12 @@
     "squel": "^5.12.1"
   },
   "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-http": "^4.0.0",
     "eslint": "^4.19.1",
     "eslint-config-google": "^0.9.1",
     "eslint-config-strongloop": "^2.1.0",
+    "mocha": "^5.2.0",
     "nodemon": "^1.17.5"
   }
 }

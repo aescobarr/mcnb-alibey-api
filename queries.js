@@ -234,6 +234,10 @@ function getToponimsPartNom(req, res, next) {
     .field('coordenadaycentroide')
     .field('incertesa');
 
+  if(!sort){
+    sort = 'nom';
+  }
+
   if (sort){
     if (dir){
       if (dir === 'asc'){
