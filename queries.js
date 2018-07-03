@@ -154,10 +154,10 @@ function getTipusToponims(req, res, next) {
       console.log(err);
     });
 
-  if (dir === 'asc'){
-    q.order('nom');
-  } else {
+  if (dir === 'desc'){
     q.order('nom', false);
+  } else {
+    q.order('nom');
   }
 
   if (results && !isNaN(parseInt(results, 10))){

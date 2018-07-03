@@ -117,3 +117,29 @@ describe('GET /toponimspartnom', function() {
   });
 
 });
+
+describe('GET /tipustoponim', function() {
+  var token = '';
+  it('authenticates and obtains a valid json web token', function(done) {
+    chai.request('http://127.0.0.1:8080/api')
+      .get('/auth')
+      .query({ user: config.test_user_name, pwd: config.test_user_pwd })
+      .end(function(err, res) {
+        expect(res).to.have.status(200);
+        token = res.body.token;
+        done();
+      });
+  });
+
+  it('40 toponims, default sort', function(done) {
+    chai.request('http://127.0.0.1:8080/api')
+      .get('/tipustoponim')
+      .set('x-access-token', token)      
+      .end(function(err, res) {
+        expect(res).to.have.status(200);
+        assert.equal(res.body.records.length, 33);
+        assert.equal(res.body.records[0].nom, 'accident geogràfic');
+        done();
+      });
+  });
+});
