@@ -156,6 +156,8 @@ function getTipusToponims(req, res, next) {
 
   if (dir === 'desc'){
     q.order('nom', false);
+  } else if (dir === 'asc') {
+    q.order('nom');
   } else {
     q.order('nom');
   }
