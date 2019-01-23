@@ -16,7 +16,7 @@ chai.use(chaiHttp);
 describe('GET /toponimspartnom', function() {
   var token = '';
   it('authenticates and obtains a valid json web token', function(done) {
-    chai.request('http://127.0.0.1:8080/api')
+    chai.request('http://127.0.0.1:' + config.running_port || '8080' + '/api')
       .get('/auth')
       .query({ user: config.test_user_name, pwd: config.test_user_pwd })
       .end(function(err, res) {
@@ -27,7 +27,7 @@ describe('GET /toponimspartnom', function() {
   });
 
   it('Obtains 20 toponims', function(done) {
-    chai.request('http://127.0.0.1:8080/api')
+    chai.request('http://127.0.0.1:' + config.running_port || '8080' + '/api')
       .get('/toponimspartnom')
       .set('x-access-token',token)
       .query({ results: 20 })
@@ -52,7 +52,7 @@ describe('GET /toponimspartnom', function() {
   });
 
   it('Obtains 20 toponims, ordered desc, partial name match', function(done) {
-    chai.request('http://127.0.0.1:8080/api')
+    chai.request('http://127.0.0.1:' + config.running_port || '8080' + '/api')
       .get('/toponimspartnom')
       .set('x-access-token', token)
       .query({ results: 20, dir: 'desc', query: 'urgen' })
@@ -78,7 +78,7 @@ describe('GET /toponimspartnom', function() {
   });
 
   it('Obtains 40 toponims, ordered desc by aquatic', function(done) {
-    chai.request('http://127.0.0.1:8080/api')
+    chai.request('http://127.0.0.1:' + config.running_port || '8080' + '/api')
       .get('/toponimspartnom')
       .set('x-access-token', token)
       .query({ results: 40, dir: 'desc', sort: 'aquatic' })
@@ -104,7 +104,7 @@ describe('GET /toponimspartnom', function() {
   });
 
   it('40 toponims, default sort', function(done) {
-    chai.request('http://127.0.0.1:8080/api')
+    chai.request('http://127.0.0.1:' + config.running_port || '8080' + '/api')
       .get('/toponimspartnom')
       .set('x-access-token', token)
       .query({ results: 40, startIndex: 40 })
@@ -132,7 +132,7 @@ describe('GET /tipustoponim', function() {
   });
 
   it('tipus toponims list, no parameters', function(done) {
-    chai.request('http://127.0.0.1:8080/api')
+    chai.request('http://127.0.0.1:' + config.running_port || '8080' + '/api')
       .get('/tipustoponim')
       .set('x-access-token', token)      
       .end(function(err, res) {
@@ -156,7 +156,7 @@ describe('GET /tipustoponim', function() {
   });
 
   it('tipus toponims list, ordered list asc', function(done) {
-    chai.request('http://127.0.0.1:8080/api')
+    chai.request('http://127.0.0.1:' + config.running_port || '8080' + '/api')
       .get('/tipustoponim')
       .set('x-access-token', token)
       .query({ dir: 'asc' })
@@ -180,7 +180,7 @@ describe('GET /tipustoponim', function() {
   });
 
   it('tipus toponims list, ordered list desc limit results', function(done) {
-    chai.request('http://127.0.0.1:8080/api')
+    chai.request('http://127.0.0.1:' + config.running_port || '8080' + '/api')
       .get('/tipustoponim')
       .set('x-access-token', token)
       .query({ dir: 'desc', results: 10 })
@@ -207,7 +207,7 @@ describe('GET /toponim', function() {
   });
 
   it('Complete toponim by id', function(done) {
-    chai.request('http://127.0.0.1:8080/api')
+    chai.request('http://127.0.0.1:' + config.running_port || '8080' + '/api')
       .get('/toponim')
       .set('x-access-token', token)
       .query({ id: '544552524553545245434F4E492020494C4C41436F6E696C6C6572612C20696C6C6120736130372F31312F32303036' })

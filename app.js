@@ -11,6 +11,7 @@ var db = require('./queries.js');
 var VerifyToken = require('./verify');
 var HttpStatus = require('http-status-codes');
 var multer = require('multer');
+var config = require('./config.js').get(process.env.NODE_ENV);
 
 // configure mult storage parameters
 var storage = multer.diskStorage({
@@ -38,7 +39,7 @@ var upload = multer({ storage: storage });
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-var port = process.env.PORT || 8080;// set our port
+var port = config.running_port || 8080;// set our port
 
 // ROUTES FOR OUR API
 // =============================================================================
