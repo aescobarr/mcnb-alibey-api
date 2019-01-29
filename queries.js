@@ -297,6 +297,7 @@ function getToponimsPartNom(req, res, next) {
 function getArbre(req, res, next) {
   var params = req.query;
   var _root = params.root;
+  var _max_depth = params.max_depth;
 
   var validate = Joi.validate(req.query, val.getArbreValidator, {
     // return an error if body has an unrecognised property
@@ -334,18 +335,33 @@ function getArbre(req, res, next) {
     .then(function(data) {
       var original_data_json = JSON.stringify(data);
       var data_copy = JSON.parse(original_data_json);
+      var data_cleaned = [];
       var referenced_copy = {};
       var root_element = { records: {} };
       var i;
       var elem;
+      
       for (i = 0; i < data_copy.length; i++){
         elem = data_copy[i];
-        elem.fills = [];
-        referenced_copy[elem.id] = elem;
+        var tree_depth;
+        if( elem.denormalized_toponimtree.split('#').length == 1 && elem.denormalized_toponimtree.length == 0){          
+          tree_depth = 0;
+        }else{
+          tree_depth = elem.denormalized_toponimtree.split('#').length;
+        }
+        if ( _max_depth == null || tree_depth <= _max_depth ){
+          data_cleaned.push(elem);
+        }
       }
 
-      for (i = 0; i < data_copy.length; i++){
-        elem = data_copy[i];
+      for (i = 0; i < data_cleaned.length; i++){
+        elem = data_cleaned[i];
+        elem.fills = [];
+        referenced_copy[elem.id] = elem;        
+      }
+
+      for (i = 0; i < data_cleaned.length; i++){
+        elem = data_cleaned[i];
         var parent_element_tuple = elem.denormalized_toponimtree.split('#')[ elem.denormalized_toponimtree.split('#').length - 1 ];
         var parent_id = parent_element_tuple.split('$')[0];
         delete elem.denormalized_toponimtree;
@@ -353,8 +369,27 @@ function getArbre(req, res, next) {
           referenced_copy[parent_id].fills.push(elem);
         } else {
           root_element = elem;
-        }
+        }        
       }
+
+      /*
+      for (i = 0; i < data_copy.length; i++){
+        elem = data_copy[i];
+        elem.fills = [];
+        referenced_copy[elem.id] = elem;        
+      }
+
+      for (i = 0; i < data_copy.length; i++){
+        elem = data_copy[i];        
+        var parent_element_tuple = elem.denormalized_toponimtree.split('#')[ elem.denormalized_toponimtree.split('#').length - 1 ];
+        var parent_id = parent_element_tuple.split('$')[0];
+        delete elem.denormalized_toponimtree;
+        if (referenced_copy[parent_id]){
+          referenced_copy[parent_id].fills.push(elem);
+        } else {
+          root_element = elem;
+        }        
+      }*/
       res.status(200)
         .json({
           records: root_element,
@@ -400,6 +435,8 @@ function getToponimsGeo(req, res, next) {
     .field('t.coordenadaxcentroide')
     .field('t.coordenadaycentroide')
     .field('t.incertesa');
+
+  console.log(q.toString());
 
   db.any(q.toString())
     .then(function(data) {

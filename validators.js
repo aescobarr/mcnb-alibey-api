@@ -24,6 +24,7 @@ var toponimsPartNom = Joi.object().keys({
 
 var arbre = Joi.object().keys({
   root: Joi.string().required(),
+  max_depth: Joi.number().positive().allow(0),
 });
 
 var geo = Joi.object().keys({

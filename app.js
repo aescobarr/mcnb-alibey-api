@@ -46,15 +46,25 @@ var port = config.running_port || 8080;// set our port
 var router = express.Router();// get an instance of the express Router
 
 router.get('/toponimspartnom', VerifyToken, db.getToponimsPartNom);
+router.get('/toponimspartnom.htm', VerifyToken, db.getToponimsPartNom);
 router.get('/tipustoponim', VerifyToken, db.getTipusToponims);
+router.get('/tipustoponim.htm', VerifyToken, db.getTipusToponims);
 router.get('/toponimsgeo', VerifyToken, db.getToponimsGeo);
+router.get('/toponimsgeo.htm', VerifyToken, db.getToponimsGeo);
 router.get('/toponim', VerifyToken, db.getToponim);
+router.get('/toponim.htm', VerifyToken, db.getToponim);
 router.post('/comment_new', VerifyToken, upload.single('file'), db.postComment);
+router.post('/comment_new.htm', VerifyToken, upload.single('file'), db.postComment);
 router.post('/comment_edit', VerifyToken, upload.single('file'), db.editComment);
+router.post('/comment_edit.htm', VerifyToken, upload.single('file'), db.editComment);
 router.post('/comment_delete', VerifyToken, db.deleteComment);
+router.post('/comment_delete.htm', VerifyToken, db.deleteComment);
 router.get('/comment', VerifyToken, db.getComment);
+router.get('/comment.htm', VerifyToken, db.getComment);
 router.get('/arbre', VerifyToken, db.getArbre);
+router.get('/arbre.htm', VerifyToken, db.getArbre);
 router.get('/auth', db.getAuth);
+router.get('/auth.htm', db.getAuth);
 
 
 // REGISTER OUR ROUTES -------------------------------
