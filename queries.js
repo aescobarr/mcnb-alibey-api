@@ -61,22 +61,26 @@ function getToponim(req, res, next) {
   }
 
   var squelPostgres = squel.useFlavour('postgres');
-  var q = squelPostgres.select().from('toponims_api');
+  //var q = squelPostgres.select().from('toponims_api');
+  var q = squelPostgres.select()
+    .from('toponim', 't')
+    .join('toponims_api', 'ta', 't.id = ta.id');
   var q_versions = squelPostgres.select().from('toponimsversio_api');
 
   if (single_id){
-    q.where(util.format("id = '%s'", single_id));
+    q.where(util.format("ta.id = '%s'", single_id));
     q_versions.where(util.format("idtoponim = '%s'", single_id));
   } else if (multiple_id){
-    q.where(util.format('id in (%s)', multiple_id));
+    q.where(util.format('ta.id in (%s)', multiple_id));
     q_versions.where(util.format('idtoponim in (%s)', multiple_id));
   }
 
-  q.field('id')
-    .field('nomtoponim')
-    .field('nom')
-    .field('aquatic')
-    .field('tipus');
+  q.field('ta.id')
+    .field('ta.nomtoponim')
+    .field('ta.nom')
+    .field('ta.aquatic')
+    .field('ta.tipus')
+    .field('t.denormalized_toponimtree');
 
   var versions_map = {};
 
@@ -101,14 +105,29 @@ function getToponim(req, res, next) {
       for (var i = 0; i < data_copy.length; i++){
         var elem = data_copy[i];
         elem.versions = versions_map[elem.id];
+        elem.llinatge = [];
+        var elems_llinatge = elem.denormalized_toponimtree.split('#');
+        for(var j=0; j < elems_llinatge.length; j++){
+          var elem_llinatge = elems_llinatge[j].split('$');
+          elem.llinatge.push({id:elem_llinatge[0],nom:elem_llinatge[1]});
+        }
       }
-      res.status(200)
+      if(single_id){
+        res.status(200)
         .json({
           totalRecords: data_copy.length,
           success: true,
-          recordsReturned: data_copy.length,
-          records: data_copy,
+          message: 'OK',
+          recordsReturned: data_copy.length,          
+          id: data_copy[0].id,
+          aquatic: data_copy[0].aquatic == false ? "No" : "Sí",
+          nomtoponim: data_copy[0].nomtoponim,
+          tipus: data_copy[0].tipus,
+          nom: data_copy[0].nom,
+          versions: data_copy[0].versions,
+          llinatge: data_copy[0].llinatge
         });
+      }      
     })
     .catch(function(err) {
       return next(err);
