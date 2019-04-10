@@ -88,50 +88,71 @@ function getToponim(req, res, next) {
     .then(function(data) {
       for (var i = 0; i < data.length; i++){
         var elem = data[i];
-        if (versions_map[elem.idtoponim] == null){
-          versions_map[elem.idtoponim] = [];
+        var copied_elem = {
+          id:                 elem.id,
+          nom:                elem.nom,
+          nomToponim:         elem.nomtoponim,
+          tipus:              elem.tipus,
+          versio:             elem.versio,
+          qualificadorversio: elem.qualificadorversio,
+          recursCaptura:      elem.recurscaptura,
+          sistrefrecurs:      elem.sistrefrecurs,
+          dataCaptura:        elem.datacaptura,
+          coordXOriginal:     elem.coordxoriginal,
+          coordYOriginal:     elem.coordyoriginal,
+          coordz:             elem.coordz,
+          incertesaz:         elem.incertesaz,
+          georeferenciatPer:  elem.georeferenciatper,
+          observacions:       elem.observacions,
+          coordXCentroide:    elem.coordxcentroide,
+          coordYCentroide:    elem.coordycentroide,
+          incertesaCoord:     elem.incertesacoord,
+          idtoponim:          elem.idtoponim
         }
-        versions_map[elem.idtoponim].push(elem);
+        if (versions_map[copied_elem.idtoponim] == null){
+          versions_map[copied_elem.idtoponim] = [];
+        }
+        versions_map[copied_elem.idtoponim].push(copied_elem);
       }
-    })
-    .catch(function(err) {
-      return next(err);
-    });
 
-  db.any(q.toString())
-    .then(function(data) {
-      var original_data_json = JSON.stringify(data);
-      var data_copy = JSON.parse(original_data_json);
-      for (var i = 0; i < data_copy.length; i++){
-        var elem = data_copy[i];
-        elem.versions = versions_map[elem.id];
-        elem.llinatge = [];
-        var elems_llinatge = elem.denormalized_toponimtree.split('#');
-        for(var j=0; j < elems_llinatge.length; j++){
-          var elem_llinatge = elems_llinatge[j].split('$');
-          elem.llinatge.push({id:elem_llinatge[0],nom:elem_llinatge[1]});
-        }
-      }
-      if(single_id){
-        res.status(200)
-        .json({
-          totalRecords: data_copy.length,
-          success: true,
-          message: 'OK',
-          recordsReturned: data_copy.length,          
-          id: data_copy[0].id,
-          aquatic: data_copy[0].aquatic == false ? "No" : "Sí",
-          nomtoponim: data_copy[0].nomtoponim,
-          tipus: data_copy[0].tipus,
-          nom: data_copy[0].nom,
-          versions: data_copy[0].versions,
-          llinatge: data_copy[0].llinatge
+      db.any(q.toString())
+        .then(function(data) {
+          var original_data_json = JSON.stringify(data);
+          var data_copy = JSON.parse(original_data_json);
+          for (var i = 0; i < data_copy.length; i++){
+            var elem = data_copy[i];
+            elem.versions = versions_map[elem.id];
+            elem.llinatge = [];
+            var elems_llinatge = elem.denormalized_toponimtree.split('#');
+            for(var j=0; j < elems_llinatge.length; j++){
+              var elem_llinatge = elems_llinatge[j].split('$');
+              elem.llinatge.push({id:elem_llinatge[0],nom:elem_llinatge[1]});
+            }
+          }
+          if(single_id){
+            res.status(200)
+            .json({
+              totalRecords: data_copy.length,
+              success: true,
+              message: 'OK',
+              recordsReturned: data_copy.length,          
+              id: data_copy[0].id,
+              aquatic: data_copy[0].aquatic == false ? "No" : "Sí",
+              nomtoponim: data_copy[0].nomtoponim,
+              tipus: data_copy[0].tipus,
+              nom: data_copy[0].nom,
+              versions: data_copy[0].versions,
+              llinatge: data_copy[0].llinatge
+            });
+          }      
+        })
+        .catch(function(err) {
+          return next(err);
         });
-      }      
     })
     .catch(function(err) {
       return next(err);
-    });
+    });  
 }
 
 function getTipusToponims(req, res, next) {
