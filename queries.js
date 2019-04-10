@@ -482,6 +482,17 @@ function getToponimsGeo(req, res, next) {
 
   db.any(q.toString())
     .then(function(data) {
+      for(var i = 0; i < data.length; i++){
+        var elem = data[i];
+        elem.nomToponim = elem.nomtoponim;
+        delete elem.nomtoponim;
+        elem.dataCaptura = elem.datacaptura;
+        delete elem.datacaptura;
+        elem.coordXCentroide = elem.coordenadaxcentroide;
+        delete elem.coordenadaxcentroide;
+        elem.coordYCentroide = elem.coordenadaycentroide;
+        delete elem.coordenadaycentroide;
+      }
       res.status(200)
         .json({
           totalRecords: data.length,
