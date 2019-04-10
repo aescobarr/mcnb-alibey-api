@@ -138,7 +138,7 @@ function getToponim(req, res, next) {
               recordsReturned: data_copy.length,          
               id: data_copy[0].id,
               aquatic: data_copy[0].aquatic == false ? "No" : "Sí",
-              nomtoponim: data_copy[0].nomtoponim,
+              nomToponim: data_copy[0].nomtoponim,
               tipus: data_copy[0].tipus,
               nom: data_copy[0].nom,
               versions: data_copy[0].versions,
@@ -390,6 +390,8 @@ function getArbre(req, res, next) {
           tree_depth = elem.denormalized_toponimtree.split('#').length;
         }
         if ( _max_depth == null || tree_depth <= _max_depth ){
+          elem.nomToponim = elem.nomtoponim;
+          delete elem.nomtoponim;
           data_cleaned.push(elem);
         }
       }
