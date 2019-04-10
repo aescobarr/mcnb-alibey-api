@@ -142,7 +142,7 @@ function getToponim(req, res, next) {
               tipus: data_copy[0].tipus,
               nom: data_copy[0].nom,
               versions: data_copy[0].versions,
-              llinatge: data_copy[0].llinatge
+              llinatge: data_copy[0].llinatge.reverse()
             });
           }      
         })
