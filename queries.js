@@ -88,7 +88,11 @@ function getToponim(req, res, next) {
     .then(function(data) {
       for (var i = 0; i < data.length; i++){
         var elem = data[i];
-        var formatted_date = moment(elem.datacaptura);
+        var formatted_date_string = 'Data no establerta';
+        if(elem.datacaptura != null){
+          var formatted_date = moment(elem.datacaptura);
+          formatted_date_string = formatted_date.format('DD/MM/YYYY');
+        }        
         var copied_elem = {
           id:                 elem.id,
           nom:                elem.nom,
@@ -98,7 +102,7 @@ function getToponim(req, res, next) {
           qualificadorversio: elem.qualificadorversio,
           recursCaptura:      elem.recurscaptura,
           sistrefrecurs:      elem.sistrefrecurs,
-          dataCaptura:        formatted_date.format('DD/MM/YYYY'),
+          dataCaptura:        formatted_date_string,
           coordXOriginal:     elem.coordxoriginal,
           coordYOriginal:     elem.coordyoriginal,
           coordz:             elem.coordz,
