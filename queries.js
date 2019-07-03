@@ -305,8 +305,7 @@ function getToponimsPartNom(req, res, next) {
     q.where('nom ilike ?', '%' + query + '%');    
   }
 
-  var q_count =  squelPostgres.select().from( q.clone(), 's' ).field('count(*)');  
-  console.log(q_count.toString());
+  var q_count =  squelPostgres.select().from( q.clone(), 's' ).field('count(*)');    
 
   if (results && !isNaN(parseInt(results, 10))){
     q.limit(parseInt(results, 10));
