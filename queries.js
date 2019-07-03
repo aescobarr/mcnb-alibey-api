@@ -268,8 +268,7 @@ function getToponimsPartNom(req, res, next) {
   var squelPostgres = squel.useFlavour('postgres');
 
   var q = squelPostgres.select()
-    .from('toponims_api', 't');
-  var q_count = q.clone().field('count(*)');
+    .from('toponims_api', 't');  
 
   q.field('id')
     .field('nomtoponim')
@@ -299,8 +298,15 @@ function getToponimsPartNom(req, res, next) {
   }
 
   if (idtipus){
-    q.where('idtipus = ?', idtipus);
+    q.where('idtipus = ?', idtipus);    
   }
+
+  if (query){
+    q.where('nom ilike ?', '%' + query + '%');    
+  }
+
+  var q_count =  squelPostgres.select().from( q.clone(), 's' ).field('count(*)');  
+  console.log(q_count.toString());
 
   if (results && !isNaN(parseInt(results, 10))){
     q.limit(parseInt(results, 10));
@@ -308,14 +314,10 @@ function getToponimsPartNom(req, res, next) {
 
   if (startIndex && !isNaN(parseInt(startIndex, 10))){
     q.offset(parseInt(startIndex, 10));
-  }
-
-  if (query){
-    q.where('nom ilike ?', '%' + query + '%');
-  }
+  }      
 
   // Modified so that totalRecords == records returned (data.length)
-  db.any(q.toString())
+  /*db.any(q.toString())
     .then(function(data) {
       res.status(200)
         .json({
@@ -330,9 +332,8 @@ function getToponimsPartNom(req, res, next) {
     })
     .catch(function(err) {
       return next(err);
-  });
-
-  /*
+  });*/
+  
   db.one(q_count.toString())
     .then(function(data_count) {
       totalRecords = parseInt(data_count.count, 10);
@@ -355,8 +356,7 @@ function getToponimsPartNom(req, res, next) {
     })
     .catch(function(err) {
       console.log(err);
-    });
-    */
+    });    
 }
 
 function getArbre(req, res, next) {
