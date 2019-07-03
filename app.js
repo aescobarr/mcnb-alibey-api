@@ -12,6 +12,8 @@ var VerifyToken = require('./verify');
 var HttpStatus = require('http-status-codes');
 var multer = require('multer');
 var config = require('./config.js').get(process.env.NODE_ENV);
+var winston = require('winston');
+var expressWinston = require('express-winston');
 
 // configure mult storage parameters
 var storage = multer.diskStorage({
@@ -66,10 +68,40 @@ router.get('/arbre.htm', VerifyToken, db.getArbre);
 router.get('/auth', db.getAuth);
 router.get('/auth.htm', db.getAuth);
 
+// LOGGING --------------------------------------------
+
+app.use(expressWinston.logger({
+  transports: [
+    new winston.transports.Console()    
+  ],
+  format: 
+    winston.format.combine(
+        winston.format.colorize(),
+        winston.format.simple()
+  ),
+  meta: true, // optional: control whether you want to log the meta data about the request (default to true)
+  msg: "HTTP {{req.statusCode}} {{req.method}} {{req.url}}", // optional: customize the default logging message. E.g. "{{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}"
+  expressFormat: true, // Use the default Express/morgan request formatting. Enabling this will override any msg if true. Will only output colors with colorize set to true
+  colorize: false, // Color the text and status code, using the Express/morgan color palette (text: gray, status: default green, 3XX cyan, 4XX yellow, 5XX red).
+  ignoreRoute: function (req, res) { return false; } // optional: allows to skip some log messages based on request and/or response
+}));
+
 
 // REGISTER OUR ROUTES -------------------------------
 // all of our routes will be prefixed with /api
 app.use('/api', router);
+
+// ERROR LOGGING -------------------------------------
+
+app.use(expressWinston.errorLogger({
+  transports: [
+    new winston.transports.Console()
+  ],
+  format: winston.format.combine(
+    winston.format.colorize(),
+    winston.format.simple()
+  )
+}));
 
 var errorCodeIsHttpValid = function(code){
   for (var key in HttpStatus){
@@ -93,6 +125,7 @@ app.use(function(err, req, res, next) {
       message: err,
     });
 });
+
 
 
 // START THE SERVER
