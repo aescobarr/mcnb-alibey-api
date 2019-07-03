@@ -314,6 +314,25 @@ function getToponimsPartNom(req, res, next) {
     q.where('nom ilike ?', '%' + query + '%');
   }
 
+  // Modified so that totalRecords == records returned (data.length)
+  db.any(q.toString())
+    .then(function(data) {
+      res.status(200)
+        .json({
+          totalRecords: data.length,
+          success: true,
+          recordsReturned: data.length,
+          startIndex: startIndex,
+          dir: dir,
+          sort: sort,
+          records: data,
+        });
+    })
+    .catch(function(err) {
+      return next(err);
+  });
+
+  /*
   db.one(q_count.toString())
     .then(function(data_count) {
       totalRecords = parseInt(data_count.count, 10);
@@ -337,6 +356,7 @@ function getToponimsPartNom(req, res, next) {
     .catch(function(err) {
       console.log(err);
     });
+    */
 }
 
 function getArbre(req, res, next) {
