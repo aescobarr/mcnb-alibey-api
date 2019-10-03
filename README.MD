@@ -1,4 +1,4 @@
-# Project Title
+# Georef API
 
 Georef API - An express app that exposes [Georef](https://github.com/aescobarr/djangoref) data through a RestFul API. Georef API is built using [Express](https://expressjs.com/).
 
@@ -7,16 +7,6 @@ This project is tightly related to [Georef](https://github.com/aescobarr/djangor
 ## Getting Started
 
 These instructions will help you set up a basic working development environment on a Ubuntu 18.04 LTS system. It assumes [Git](https://git-scm.com/) is installed and running in the host machine.
-
-Clone the repository, and run
-
-npm install
-
-To run the app, do
-
-node app.js
-
-(or some variant)
 
 
 ### Prerequisites
