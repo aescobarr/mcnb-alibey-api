@@ -61,7 +61,7 @@ function getToponim(req, res, next) {
   }
 
   var squelPostgres = squel.useFlavour('postgres');
-  //var q = squelPostgres.select().from('toponims_api');
+  // var q = squelPostgres.select().from('toponims_api');
   var q = squelPostgres.select()
     .from('toponim', 't')
     .join('toponims_api', 'ta', 't.id = ta.id');
@@ -89,31 +89,31 @@ function getToponim(req, res, next) {
       for (var i = 0; i < data.length; i++){
         var elem = data[i];
         var formatted_date_string = 'Data no establerta';
-        if(elem.datacaptura != null){
+        if (elem.datacaptura != null){
           var formatted_date = moment(elem.datacaptura);
           formatted_date_string = formatted_date.format('DD/MM/YYYY');
-        }        
-        var copied_elem = {
-          id:                 elem.id,
-          nom:                elem.nom,
-          nomToponim:         elem.nomtoponim,
-          tipus:              elem.tipus,
-          versio:             elem.versio,
-          qualificadorversio: elem.qualificadorversio,
-          recursCaptura:      elem.recurscaptura,
-          sistrefrecurs:      elem.sistrefrecurs,
-          dataCaptura:        formatted_date_string,
-          coordXOriginal:     elem.coordxoriginal,
-          coordYOriginal:     elem.coordyoriginal,
-          coordz:             elem.coordz,
-          incertesaz:         elem.incertesaz,
-          georeferenciatPer:  elem.georeferenciatper,
-          observacions:       elem.observacions,
-          coordXCentroide:    elem.coordxcentroide,
-          coordYCentroide:    elem.coordycentroide,
-          incertesaCoord:     elem.incertesacoord,
-          idtoponim:          elem.idtoponim
         }
+        var copied_elem = {
+          id: elem.id,
+          nom: elem.nom,
+          nomToponim: elem.nomtoponim,
+          tipus: elem.tipus,
+          versio: elem.versio,
+          qualificadorversio: elem.qualificadorversio,
+          recursCaptura: elem.recurscaptura,
+          sistrefrecurs: elem.sistrefrecurs,
+          dataCaptura: formatted_date_string,
+          coordXOriginal: elem.coordxoriginal,
+          coordYOriginal: elem.coordyoriginal,
+          coordz: elem.coordz,
+          incertesaz: elem.incertesaz,
+          georeferenciatPer: elem.georeferenciatper,
+          observacions: elem.observacions,
+          coordXCentroide: elem.coordxcentroide,
+          coordYCentroide: elem.coordycentroide,
+          incertesaCoord: elem.incertesacoord,
+          idtoponim: elem.idtoponim
+        };
         if (versions_map[copied_elem.idtoponim] == null){
           versions_map[copied_elem.idtoponim] = [];
         }
@@ -129,27 +129,48 @@ function getToponim(req, res, next) {
             elem.versions = versions_map[elem.id];
             elem.llinatge = [];
             var elems_llinatge = elem.denormalized_toponimtree.split('#');
-            for(var j=0; j < elems_llinatge.length; j++){
+            for (var j=0; j < elems_llinatge.length; j++){
               var elem_llinatge = elems_llinatge[j].split('$');
-              elem.llinatge.push({id:elem_llinatge[0],nom:elem_llinatge[1]});
+              elem.llinatge.push({ id: elem_llinatge[0], nom: elem_llinatge[1]});
             }
           }
-          if(single_id){
+          if (single_id){
             res.status(200)
-            .json({
-              totalRecords: data_copy.length,
-              success: true,
-              message: 'OK',
-              recordsReturned: data_copy.length,          
-              id: data_copy[0].id,
-              aquatic: data_copy[0].aquatic == false ? "No" : "Sí",
-              nomToponim: data_copy[0].nomtoponim,
-              tipus: data_copy[0].tipus,
-              nom: data_copy[0].nom,
-              versions: data_copy[0].versions,
-              llinatge: data_copy[0].llinatge.reverse()
-            });
-          }      
+              .json({
+                totalRecords: data_copy.length,
+                success: true,
+                message: 'OK',
+                recordsReturned: data_copy.length,
+                id: data_copy[0].id,
+                aquatic: data_copy[0].aquatic === false ? 'No' : 'Sí',
+                nomToponim: data_copy[0].nomtoponim,
+                tipus: data_copy[0].tipus,
+                nom: data_copy[0].nom,
+                versions: data_copy[0].versions,
+                llinatge: data_copy[0].llinatge.reverse()
+              });
+          } else {
+            var result_arr = [];
+            for (i = 0; i < data_copy.length; i++){
+              result_arr.push({
+                id: data_copy[i].id,
+                aquatic: data_copy[i].aquatic === false ? 'No' : 'Sí',
+                nomToponim: data_copy[i].nomtoponim,
+                tipus: data_copy[i].tipus,
+                nom: data_copy[i].nom,
+                versions: data_copy[i].versions,
+                llinatge: data_copy[i].llinatge.reverse()
+              });
+            }
+            res.status(200)
+              .json({
+                totalRecords: data_copy.length,
+                success: true,
+                message: 'OK',
+                recordsReturned: data_copy.length,
+                records: result_arr
+              });
+          }
         })
         .catch(function(err) {
           return next(err);
@@ -157,7 +178,7 @@ function getToponim(req, res, next) {
     })
     .catch(function(err) {
       return next(err);
-    });  
+    });
 }
 
 function getTipusToponims(req, res, next) {
@@ -268,7 +289,7 @@ function getToponimsPartNom(req, res, next) {
   var squelPostgres = squel.useFlavour('postgres');
 
   var q = squelPostgres.select()
-    .from('toponims_api', 't');  
+    .from('toponims_api', 't');
 
   q.field('id')
     .field('nomtoponim')
@@ -298,14 +319,14 @@ function getToponimsPartNom(req, res, next) {
   }
 
   if (idtipus){
-    q.where('idtipus = ?', idtipus);    
+    q.where('idtipus = ?', idtipus);
   }
 
   if (query){
-    q.where('nom ilike ?', '%' + query + '%');    
+    q.where('nom ilike ?', '%' + query + '%');
   }
 
-  var q_count =  squelPostgres.select().from( q.clone(), 's' ).field('count(*)');    
+  var q_count = squelPostgres.select().from(q.clone(), 's').field('count(*)');
 
   if (results && !isNaN(parseInt(results, 10))){
     q.limit(parseInt(results, 10));
@@ -313,10 +334,10 @@ function getToponimsPartNom(req, res, next) {
 
   if (startIndex && !isNaN(parseInt(startIndex, 10))){
     q.offset(parseInt(startIndex, 10));
-  }      
+  }
 
   // Modified so that totalRecords == records returned (data.length)
-  /*db.any(q.toString())
+  /* db.any(q.toString())
     .then(function(data) {
       res.status(200)
         .json({
@@ -332,7 +353,7 @@ function getToponimsPartNom(req, res, next) {
     .catch(function(err) {
       return next(err);
   });*/
-  
+
   db.one(q_count.toString())
     .then(function(data_count) {
       totalRecords = parseInt(data_count.count, 10);
@@ -355,7 +376,7 @@ function getToponimsPartNom(req, res, next) {
     })
     .catch(function(err) {
       console.log(err);
-    });    
+    });
 }
 
 function getArbre(req, res, next) {
@@ -404,16 +425,16 @@ function getArbre(req, res, next) {
       var root_element = { records: {} };
       var i;
       var elem;
-      
+
       for (i = 0; i < data_copy.length; i++){
         elem = data_copy[i];
         var tree_depth;
-        if( elem.denormalized_toponimtree.split('#').length == 1 && elem.denormalized_toponimtree.length == 0){          
+        if (elem.denormalized_toponimtree.split('#').length === 1 && elem.denormalized_toponimtree.length === 0){
           tree_depth = 0;
-        }else{
+        } else {
           tree_depth = elem.denormalized_toponimtree.split('#').length;
         }
-        if ( _max_depth == null || tree_depth <= _max_depth ){
+        if (_max_depth == null || tree_depth <= _max_depth){
           elem.nomToponim = elem.nomtoponim;
           delete elem.nomtoponim;
           data_cleaned.push(elem);
@@ -423,7 +444,7 @@ function getArbre(req, res, next) {
       for (i = 0; i < data_cleaned.length; i++){
         elem = data_cleaned[i];
         elem.fills = [];
-        referenced_copy[elem.id] = elem;        
+        referenced_copy[elem.id] = elem;
       }
 
       for (i = 0; i < data_cleaned.length; i++){
@@ -435,18 +456,18 @@ function getArbre(req, res, next) {
           referenced_copy[parent_id].fills.push(elem);
         } else {
           root_element = elem;
-        }        
+        }
       }
 
       /*
       for (i = 0; i < data_copy.length; i++){
         elem = data_copy[i];
         elem.fills = [];
-        referenced_copy[elem.id] = elem;        
+        referenced_copy[elem.id] = elem;
       }
 
       for (i = 0; i < data_copy.length; i++){
-        elem = data_copy[i];        
+        elem = data_copy[i];
         var parent_element_tuple = elem.denormalized_toponimtree.split('#')[ elem.denormalized_toponimtree.split('#').length - 1 ];
         var parent_id = parent_element_tuple.split('$')[0];
         delete elem.denormalized_toponimtree;
@@ -454,7 +475,7 @@ function getArbre(req, res, next) {
           referenced_copy[parent_id].fills.push(elem);
         } else {
           root_element = elem;
-        }        
+        }
       }*/
       res.status(200)
         .json({
@@ -506,7 +527,7 @@ function getToponimsGeo(req, res, next) {
 
   db.any(q.toString())
     .then(function(data) {
-      for(var i = 0; i < data.length; i++){
+      for (var i = 0; i < data.length; i++){
         var elem = data[i];
         elem.nomToponim = elem.nomtoponim;
         delete elem.nomtoponim;
