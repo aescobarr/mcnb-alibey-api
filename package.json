@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint --ignore-path .gitignore .",
     "test": "mocha --timeout 2000 --exit",
-    "devstart": "nodemon --inspect app.js"
+    "devstart": "NODE_ENV=development nodemon --inspect app.js"
   },
   "author": "",
   "license": "ISC",

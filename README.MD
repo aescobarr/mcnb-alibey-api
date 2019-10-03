@@ -1,6 +1,6 @@
 # Georef API
 
-Georef API - An express app that exposes [Georef](https://github.com/aescobarr/djangoref) data through a RestFul API. Georef API is built using [Express](https://expressjs.com/).
+Georef API - An express app that exposes [Georef](https://github.com/aescobarr/djangoref) data through a REST API. Georef API is built using [Express](https://expressjs.com/).
 
 This project is tightly related to [Georef](https://github.com/aescobarr/djangoref) and is not meant to work as a separate piece since it uses Georef underlying database.
 
@@ -43,6 +43,10 @@ Before starting the app, we need to:
 * Create an API user in Georef
 * Fill the config file with the appropiate values
 * Create the API tables in our Georef setup
+
+##### API User
+
+The API User is a normal Georef user. To create it log on to your current Georef install with and admin user and create a new user. Then, go to the public.auth_user table in the PostgreSQL database and look up your user. Copy the fields user_name and password, you will need to put these values in the test section of the config file.
 
 ##### Config files
 
@@ -101,6 +105,30 @@ python scripts/toponims_api.py
 python scripts/toponimsversio_api.py
 ```
 The auxiliary tables created are static, and the responsibility to refresh these tables falls on the system admin. The recommended approach is to create cron jobs to do so. More on this in the deployment section.
+
+##### Starting the API and npm run scripts
+
+You can start the API by issuing the following command from the API root folder:
+```
+NODE_ENV=[environment_name] node app.js
+```
+Where [environment_name] is one of the environments described in the config file. If the environment_name supplied is not found in the config file, default env is used.
+
+For dev, we recommend using the dev npm run script, which is invoked like this:
+```
+npm run devstart
+```
+This initiates the app using the development environment, using the [Node.js inspector](https://nodejs.org/en/docs/guides/debugging-getting-started/).
+
+There are two additional scripts defined in package.json:
+```
+npm run test
+```
+Runs the [Mocha](https://mochajs.org/) test suite for this app.
+```
+npm run lint
+```
+Runs a linter against the source file.
 
 ## Running the tests
 
