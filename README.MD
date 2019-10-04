@@ -162,15 +162,14 @@ Obtains a list of toponims in json format. By default, toponims are ordered by n
 
 Parameters:
 * Sorting:
-** sort (optional) - Possible values are 'data'/'nom'/'aquatic'/'tipus'.
-** dir (optional) - 'desc' for descending, 'asc' for ascending.
+    * sort (optional) - Possible values are 'data'/'nom'/'aquatic'/'tipus'.
+    * dir (optional) - 'desc' for descending, 'asc' for ascending.
 * Pagination:
-** results (optional) - It is an integer, and it limits the number of returned results.
-** startIndex (optional) - Also an integer. Index of the first returned result inside the set of all available results.
+    * results (optional) - It is an integer, and it limits the number of returned results.
+    * startIndex (optional) - Also an integer. Index of the first returned result inside the set of all available results.
 * Filter:
-** idtipus (optional) - This is a filter parameter. If supplied with a valid idtipus, it will only return toponims of the specified type.
-** query (optional) - This is a filter parameter. It will be partially matched against the toponim name.
-
+    * idtipus (optional) - This is a filter parameter. If supplied with a valid idtipus, it will only return toponims of the specified type.
+    * query (optional) - This is a filter parameter. It will be partially matched against the toponim name.
 
 get '/api/tipustoponim'
 
