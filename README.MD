@@ -136,17 +136,41 @@ This is a list of all API endpoints, with a brief explanation of which HTTP meth
 
 ### GET '/api/auth'
 
-Parameters:
-
-| Name | Mandatory? | Possible values  | 
-|------|------------|------------------|
-| user |     yes    | A valid username |
-| pwd  |     yes    | A valid password |
-  
-
 This is the authentication endpoint. Authentication uses JSON Web Token: i.e. the authentication endpoint receives a password and username which is verified against the django auth_user table. If the proposed username/password combination is valid, auth supplies a Token which can be presented in the header in any access to an API endpoint. All other API endpoints will validate this token and grant or refuse access accordingly.
 
-get '/api/toponimspartnom'
+Parameters:
+* user (mandatory) - a valid username
+* pwd (mandatory) - a valid password
+  
+
+#### Example:
+
+GET /api/auth.htm?user=georef_api&pwd=secret
+
+```json
+{
+    "success": true,
+    "message": "OK",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsImlhdCI6MTU3MDE5MDQ1NywiZXhwIjoxNTcwMjc2ODU3fQ.doHdM5p0V9qUoRPax0tVdOLukO1Sph2D2kgustbp83A"
+}
+```
+The obtained token must be included in the header of all calls, with the key "token" or "x-access-token" and the value returned in the "token" key of a valid response to auth.
+
+### GET '/api/toponimspartnom'
+
+Obtains a list of toponims in json format. By default, toponims are ordered by name.
+
+Parameters:
+* Sorting:
+** sort (optional) - Possible values are 'data'/'nom'/'aquatic'/'tipus'.
+** dir (optional) - 'desc' for descending, 'asc' for ascending.
+* Pagination:
+** results (optional) - It is an integer, and it limits the number of returned results.
+** startIndex (optional) - Also an integer. Index of the first returned result inside the set of all available results.
+* Filter:
+** idtipus (optional) - This is a filter parameter. If supplied with a valid idtipus, it will only return toponims of the specified type.
+** query (optional) - This is a filter parameter. It will be partially matched against the toponim name.
+
 
 get '/api/tipustoponim'
 
