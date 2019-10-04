@@ -171,6 +171,34 @@ Parameters:
     * idtipus (optional) - This is a filter parameter. If supplied with a valid idtipus, it will only return toponims of the specified type.
     * query (optional) - This is a filter parameter. It will be partially matched against the toponim name.
 
+#### Example:
+
+GET /api/toponimspartnom?results=20&dir=desc&query=urgen
+```json
+{
+    "totalRecords": 1,
+    "success": true,
+    "recordsReturned": 1,
+    "dir": "desc",
+    "sort": "nom",
+    "records": [
+        {
+            "id": "54455252455354524530343130335A757267656E6133302F31302F32303036",
+            "nomtoponim": "Zurgena",
+            "nom": "Zurgena - Espanya (municipi) (Terrestre)",
+            "aquatic": false,
+            "tipus": "municipi",
+            "idtipus": "mz_tipustoponim_2",
+            "datacaptura": "2012-10-15T22:00:00.000Z",
+            "coordenadaxcentroide": -2.031512,
+            "coordenadaycentroide": 37.360383,
+            "incertesa": 8080.84
+        }
+    ]
+}
+```
+
+
 get '/api/tipustoponim'
 
 get '/api/toponimsgeo'
