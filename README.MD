@@ -14,25 +14,25 @@ These instructions will help you set up a basic working development environment 
 We assume that Georef is installed in its dev form in the machine, with all its dependencies. Take a look at the [docs](https://github.com/aescobarr/djangoref/blob/master/README.md).
 
 Express is a [Node.js](https://nodejs.org/) framework, so we need to install Node. It can be installed from packages:
-```
+```bash
 sudo apt install nodejs
 ```
 
 We also need the [Node.js package manager](https://www.npmjs.com/), which can also be installed from packages:
 
-```
+```bash
 sudo apt install npm
 ```
 
 ### Installing
 
 Clone the repository like this:
-```
+```bash
 git clone https://github.com/aescobarr/djangoref_api.git
 ```
 
 Then from the newly cloned folder we need to install the dependencies using npm:
-```
+```bash
 npm install
 ```
 
@@ -72,7 +72,7 @@ var config = {
 Each of the keys in config (production, test, etc) represents one of the possible environments in which the API can be run. You can add as many environments as needed, but each of the keys needs the following items:
 ```javascript
 some_environment: {
-  secret: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', //a long convoluted string used internally in auth stuff
+  secret: 'some_secret',                  //a long convoluted string used internally in auth stuff
   database_host: 'localhost',             //ip address of the machine hosting the Georef PostgreSQL database
   database_port: 5432,                    //The port in which PostgreSQL listens for incoming connections (usually 5432)
   database_name: 'my_database',           //The name of the Georef PostgreSQL database 
@@ -109,77 +109,137 @@ The auxiliary tables created are static, and the responsibility to refresh these
 ##### Starting the API and npm run scripts
 
 You can start the API by issuing the following command from the API root folder:
-```
+```bash
 NODE_ENV=[environment_name] node app.js
 ```
 Where [environment_name] is one of the environments described in the config file. If the environment_name supplied is not found in the config file, default env is used.
 
 For dev, we recommend using the dev npm run script, which is invoked like this:
-```
+```bash
 npm run devstart
 ```
 This initiates the app using the development environment, using the [Node.js inspector](https://nodejs.org/en/docs/guides/debugging-getting-started/).
 
 There are two additional scripts defined in package.json:
-```
+```bash
 npm run test
 ```
 Runs the [Mocha](https://mochajs.org/) test suite for this app.
-```
+```bash
 npm run lint
 ```
-Runs a linter against the source file.
+Runs a linter against the source files. The rules are defined in .eslintrc.json, feel free to make them tighter or looser according to your preferences.
+
+## The API itself
+
+This is a list of all API endpoints, with a brief explanation of which HTTP method is expected, associated parameters and expected results.
+
+### GET '/api/auth'
+
+Parameters:
+
+| Name | Mandatory? | Possible values  | 
+|------|------------|------------------|
+| user |     yes    | A valid username |
+| pwd  |     yes    | A valid password |
+  
+
+This is the authentication endpoint. Authentication uses JSON Web Token: i.e. the authentication endpoint receives a password and username which is verified against the django auth_user table. If the proposed username/password combination is valid, auth supplies a Token which can be presented in the header in any access to an API endpoint. All other API endpoints will validate this token and grant or refuse access accordingly.
+
+get '/api/toponimspartnom'
+
+get '/api/tipustoponim'
+
+get '/api/toponimsgeo'
+
+get '/api/toponim'
+
+get '/api/arbre'
+
+get '/api/comment'
+
+post '/api/comment_new'
+
+post '/api/comment_edit'
+
+post '/api/comment_delete'
+
 
 ## Running the tests
 
-Explain how to run the automated tests for this system
+All tests validate and pull results from a test database, so the first thing we need to do is create this test database and fill it with test data. To simplify things, we will do everything as the postgres user but you could create a separate user to perform the tests with; just remember to assign the appropiate permissions so it can read and access the test database without problems.
 
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
+Create a test PostgreSQL database. In this example we'll call it georef_api_test. From the shell, as postgres user do:
+```bash
+createdb georef_api_test
 ```
 
-### And coding style tests
-
-Explain what these tests test and why
-
+We need to enable this new database spatially, we do it like so:
+```bash
+# log to the database using your postgres user
+psql -U postgres -W -d georef_api_test
+# once in psql interactive shell, enable Postgis in the current database
+create extension postgis;
+create extension postgis_topology;
+# go back to shell
+\q
 ```
-Give an example
+
+Finally, restore the test database provided in the repo georef_test.sql. From the shell type:
+```bash
+psql -U postgres -W -d georef_api_test -f georef_test.sql
 ```
+This will create all the needed tables and fill in test data.
+
+Don't forget to create a test entry in config.js, with the necessary credentials to connect to the database. The mock data include a test user with a weak password. The 'test' entry should look something like this:
+```javascript
+test: {
+  secret: 'some_secret',
+  database_host: 'localhost',
+  database_port: 5432,
+  database_name: 'georef_api_test',
+  database_user: 'postgres', 
+  database_password: 'postgres_user_password', //Put here your own password
+  test_user_name: 'georef_api', //You don't need to change this. This user already exists in the mock data
+  test_user_pwd: 'secret', //You don't need to change this either. 
+  running_port: 8080,
+}
+```
+
+Finally, we run the tests from the shell with the npm run command. From the root folder of the Georef API project, type:
+```bash
+npm run test
+```
+
+The tests are predefined calls to the API endpoints. The tests should be successful if:
+ * The test scripts can access the api normally
+ * The api can connect to the database without problems
+ * The results pulled from the database are consistent with the expected results
 
 ## Deployment
 
-Add additional notes about how to deploy this on a live system
+TODO!
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+TODO!
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+TODO!
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+TODO!
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+TODO!
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+TODO!
 
 ## Acknowledgments
 
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+TODO!

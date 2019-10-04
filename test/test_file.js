@@ -91,7 +91,7 @@ describe('GET /toponimspartnom', function() {
         }
         expect(res).to.have.status(200);
         assert.equal(res.body.records.length, 40);
-        assert.equal(res.body.records[0].nomtoponim, 'Belice');
+        assert.equal(res.body.records[0].nomtoponim, ' Inagua');
         done();
       });
   });
@@ -107,7 +107,7 @@ describe('GET /toponimspartnom', function() {
         }
         expect(res).to.have.status(200);
         assert.equal(res.body.records.length, 40);
-        assert.equal(res.body.records[0].nomtoponim, 'Escala, l\'');
+        assert.equal(res.body.records[0].nomtoponim, 'Blanes');
         done();
       });
   });
@@ -172,7 +172,7 @@ describe('GET /tipustoponim', function() {
           console.log(err.stack);
         }
         expect(res).to.have.status(200);
-        assert.equal(res.body.records.length, 32);
+        assert.equal(res.body.records.length, 33);
         assert.equal(res.body.records[0].nom, 'accident geogràfic');
         done();
       });
