@@ -130,7 +130,7 @@ npm run lint
 ```
 Runs a linter against the source files. The rules are defined in .eslintrc.json, feel free to make them tighter or looser according to your preferences.
 
-## The API itself
+## API Endpoints
 
 This is a list of all API endpoints, with a brief explanation of which HTTP method is expected, associated parameters and expected results.
 
@@ -198,14 +198,236 @@ GET /api/toponimspartnom?results=20&dir=desc&query=urgen
 }
 ```
 
+### GET '/api/tipustoponim'
 
-get '/api/tipustoponim'
+Returns a list of toponim types, ordered by name.
 
-get '/api/toponimsgeo'
+Parameters:
+* Sorting:    
+    * dir (optional) - 'desc' for descending, 'asc' for ascending.
+* Pagination:
+    * results (optional) - It is an integer, and it limits the number of returned results.
+    * startIndex (optional) - Also an integer. Index of the first returned result inside the set of all available results.
 
-get '/api/toponim'
+#### Example:
 
-get '/api/arbre'
+GET /api/tipustoponim?results=5&startIndex=5
+```json
+{
+    "totalRecords": 33,
+    "success": true,
+    "recordsReturned": 5,
+    "startIndex": "5",
+    "records": [
+        {
+            "id": "mprieto203233081715184642",
+            "nom": "ciutat autònoma"
+        },
+        {
+            "id": "mz_tipustoponim_3",
+            "nom": "comarca"
+        },
+        {
+            "id": "furibe86507472442252703205",
+            "nom": "comtat"
+        },
+        {
+            "id": "mprieto18104846131021302470",
+            "nom": "comuna"
+        },
+        {
+            "id": "mz_tipustoponim_5",
+            "nom": "comunitat autònoma"
+        }
+    ]
+}
+```
+
+### GET '/api/toponimsgeo'
+
+Given an input geometry of type polygon specified in [Well Known Text format](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry), returns all toponims contained in this geometry by using the Postgis [ST_WITHIN](https://postgis.net/docs/ST_Within.html) function.
+
+Parameters:
+* wkt (mandatory) - A string containing the WKT representation of a polygon. The polygon coordinates must be specified in WGS84 latitude longitude pairs (see example)
+
+#### Example:
+
+GET /api/toponimsgeo.htm?wkt=POLYGON((-2.384033203125005 37.022291107711915,-2.498016357421943 37.02558034854766,-2.5117492675781863 36.932330061503755,-2.4018859863281485 36.847757665258285,-2.2810363769531334 36.88071909009696,-2.2082519531250164 36.99706886366319,-2.278289794921957 37.05956083025189,-2.384033203125005 37.022291107711915))
+```json
+{
+    "totalRecords": 5,
+    "success": true,
+    "message": "OK",
+    "records": [
+        {
+            "id": "furibe227145761585268611058",
+            "nom": "Viator - Espanya (municipi) (Terrestre)",
+            "aquatic": false,
+            "tipus": "municipi",
+            "incertesa": 4022.44,
+            "nomToponim": "Viator",
+            "dataCaptura": "2012-10-15T22:00:00.000Z",
+            "coordXCentroide": -2.399692,
+            "coordYCentroide": 36.896489
+        },
+        {
+            "id": "furibe227106906841543311042",
+            "nom": "Turrillas - Espanya (municipi) (Terrestre)",
+            "aquatic": false,
+            "tipus": "municipi",
+            "incertesa": 4957.82,
+            "nomToponim": "Turrillas",
+            "dataCaptura": "2012-10-15T22:00:00.000Z",
+            "coordXCentroide": -2.261681,
+            "coordYCentroide": 37.02636
+        },
+        {
+            "id": "544552524553545245303430373450656368696E6133302F31302F32303036",
+            "nom": "Pechina - Espanya (municipi) (Terrestre)",
+            "aquatic": false,
+            "tipus": "municipi",
+            "incertesa": 6407.03,
+            "nomToponim": "Pechina",
+            "dataCaptura": "2012-10-15T22:00:00.000Z",
+            "coordXCentroide": -2.398777,
+            "coordYCentroide": 36.941614
+        },
+        {
+            "id": "544552524553545245303430323442656E61686164757832372F31302F32303036",
+            "nom": "Benahadux - Espanya (municipi) (Terrestre)",
+            "aquatic": false,
+            "tipus": "municipi",
+            "incertesa": 4837.35,
+            "nomToponim": "Benahadux",
+            "dataCaptura": "2012-10-15T22:00:00.000Z",
+            "coordXCentroide": -2.471333,
+            "coordYCentroide": 36.91781
+        },
+        {
+            "id": "544552524553545245303430373852696F6A6133302F31302F32303036",
+            "nom": "Rioja - Espanya (municipi) (Terrestre)",
+            "aquatic": false,
+            "tipus": "municipi",
+            "incertesa": 4554.12,
+            "nomToponim": "Rioja",
+            "dataCaptura": "2012-10-15T22:00:00.000Z",
+            "coordXCentroide": -2.433998,
+            "coordYCentroide": 36.970119
+        }
+    ]
+}
+```
+
+### GET '/api/toponim'
+
+General detal view for toponim. Given an id as parameter, returns the detailed information of a single toponim.
+
+Parameters:
+* id(mandatory) - A string containing a valid toponim id. Multiple comma separated toponim ids are allowed.
+
+#### Example:
+
+GET /api/toponim.htm?id=mlozano3502127189329321892
+```json
+{
+    "totalRecords": 1,
+    "success": true,
+    "message": "OK",
+    "recordsReturned": 1,
+    "id": "mlozano3502127189329321892",
+    "aquatic": "No",
+    "nomToponim": "Àfrica Occidental",
+    "tipus": "accident geogràfic",
+    "nom": "Àfrica Occidental -  (accident geogràfic) (Terrestre)",
+    "versions": [
+        {
+            "id": "mlozano3502127190772681893",
+            "nom": "Àfrica Occidental -  (accident geogràfic) (Terrestre)",
+            "nomToponim": "Àfrica Occidental",
+            "tipus": "accident geogràfic",
+            "versio": 1,
+            "qualificadorversio": null,
+            "recursCaptura": null,
+            "sistrefrecurs": null,
+            "dataCaptura": "Data no establerta",
+            "coordXOriginal": "",
+            "coordYOriginal": "",
+            "coordz": null,
+            "incertesaz": null,
+            "georeferenciatPer": "Lozano, María Fernanda",
+            "observacions": "",
+            "coordXCentroide": 0.800386514397298,
+            "coordYCentroide": 13.6410663264243,
+            "incertesaCoord": 17.9723950938248,
+            "idtoponim": "mlozano3502127189329321892"
+        }
+    ],
+    "llinatge": [
+        {
+            "id": "mlozano3506592866400701903",
+            "nom": "Àfrica"
+        }
+    ]
+}
+```
+
+### GET '/api/arbre'
+
+Toponims have a tree structure; each toponim has one or more children toponims to indicate a "contains" or "belongs to" relationship. For instance, Western Africa is a child of Africa. This endpoint lists all children from a given root. 
+
+Parameters:
+* root(mandatory) - A string containing a valid toponim id which indicates the root of the tree which will be returned
+* max_depth(optional) - The depth parameter is an integer that limits the depth of the tree. If max_depth=0, only the toponim identified by the 'root' parameter will be returned. If max_depth=1, the toponim indicated by root and its direct children. If max_depth=2, toponim indicated by root, its direct children and the children of direct children (grandchildren?), etc.
+
+#### Example:
+
+GET /api/arbre.htm?root=mlozano3506592866400701903&max_depth=1
+```json
+{
+    "records": {
+        "id": "mlozano3506592866400701903",
+        "nom": "Àfrica -  (continent) (Terrestre)",
+        "aquatic": false,
+        "tipus": "continent",
+        "idtipus": "furibe53448869648908722504",
+        "datacaptura": null,
+        "coordenadaxcentroide": 19.6420318201855,
+        "coordenadaycentroide": 4.94129223848315,
+        "incertesa": 40.5450511588554,
+        "nomToponim": "Àfrica",
+        "fills": [ //The children are here
+            {
+                "id": "mlozano3502127189329321892",
+                "nom": "Àfrica Occidental -  (accident geogràfic) (Terrestre)",
+                "aquatic": false,
+                "tipus": "accident geogràfic",
+                "idtipus": "mz_tipustoponim_7",
+                "datacaptura": null,
+                "coordenadaxcentroide": 0.800386514397298,
+                "coordenadaycentroide": 13.6410663264243,
+                "incertesa": 17.9723950938248,
+                "nomToponim": "Àfrica Occidental",
+                "fills": []
+            },
+            /* A lot of ommitted results */
+            /* ... */
+            {
+                "id": "oandres182343084713568095",
+                "nom": "Uganda - Uganda (estat) (Terrestre)",
+                "aquatic": false,
+                "tipus": "estat",
+                "idtipus": "mz_tipustoponim_6",
+                "datacaptura": null,
+                "coordenadaxcentroide": 32.3899055996886,
+                "coordenadaycentroide": 1.27593176671081,
+                "incertesa": 3.85662190899941,
+                "nomToponim": "Uganda",
+                "fills": []
+            }
+        ]
+    }
+}
+```
 
 get '/api/comment'
 
