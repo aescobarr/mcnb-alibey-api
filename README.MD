@@ -429,15 +429,6 @@ GET /api/arbre.htm?root=mlozano3506592866400701903&max_depth=1
 }
 ```
 
-get '/api/comment'
-
-post '/api/comment_new'
-
-post '/api/comment_edit'
-
-post '/api/comment_delete'
-
-
 ## Running the tests
 
 All tests validate and pull results from a test database, so the first thing we need to do is create this test database and fill it with test data. To simplify things, we will do everything as the postgres user but you could create a separate user to perform the tests with; just remember to assign the appropiate permissions so it can read and access the test database without problems.
@@ -491,28 +482,18 @@ The tests are predefined calls to the API endpoints. The tests should be success
 
 ## Deployment
 
-TODO!
+In production, we recommend using some sort of process manager to control the Node.js app. We like [PM2](http://pm2.keymetrics.io/), and also we recommend using some front server like [Apache](https://httpd.apache.org/) or [Nginx](https://www.nginx.com/) and tunnel the access to the app as a proxy through these servers.
 
 ## Built With
 
-TODO!
-
-## Contributing
-
-TODO!
-
-## Versioning
-
-TODO!
+* [Node.js](https://nodejs.org) 
+* [Express](https://expressjs.com/)
 
 ## Authors
 
-TODO!
+Developed by [Agustí Escobar](https://github.com/aescobarr)
 
 ## License
 
-TODO!
+This software is licensed under [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html)
 
-## Acknowledgments
-
-TODO!
