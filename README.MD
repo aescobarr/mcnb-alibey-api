@@ -88,8 +88,8 @@ some_environment: {
 
 The API uses certain denormalized tables to accelerate some queries. These API tables are created via scripts that are included in the Georef project. The scripts are:
  * [Geometry API table](https://github.com/aescobarr/djangoref/blob/master/scripts/geometries_api.py)
- * [Toponims API table](https://github.com/aescobarr/djangoref/blob/master/scripts/toponims_api.py)
- * [Toponim versions API table](https://github.com/aescobarr/djangoref/blob/master/scripts/toponimsversio_api.py)
+ * [Toponyms API table](https://github.com/aescobarr/djangoref/blob/master/scripts/toponims_api.py)
+ * [Toponym versions API table](https://github.com/aescobarr/djangoref/blob/master/scripts/toponimsversio_api.py)
 
 To run these scripts, perform the following steps (we assume that the user that owns the Georef project folder is called georef):
 ```bash
@@ -158,7 +158,7 @@ The obtained token must be included in the header of all calls, with the key "to
 
 ### GET '/api/toponimspartnom'
 
-Obtains a list of toponims in json format. By default, toponims are ordered by name.
+Obtains a list of toponyms in json format. By default, toponyms are ordered by name.
 
 Parameters:
 * Sorting:
@@ -168,8 +168,8 @@ Parameters:
     * results (optional) - It is an integer, and it limits the number of returned results.
     * startIndex (optional) - Also an integer. Index of the first returned result inside the set of all available results.
 * Filter:
-    * idtipus (optional) - This is a filter parameter. If supplied with a valid idtipus, it will only return toponims of the specified type.
-    * query (optional) - This is a filter parameter. It will be partially matched against the toponim name.
+    * idtipus (optional) - This is a filter parameter. If supplied with a valid idtipus, it will only return toponyms of the specified type.
+    * query (optional) - This is a filter parameter. It will be partially matched against the toponym name.
 
 #### Example:
 
@@ -200,7 +200,7 @@ GET /api/toponimspartnom?results=20&dir=desc&query=urgen
 
 ### GET '/api/tipustoponim'
 
-Returns a list of toponim types, ordered by name.
+Returns a list of toponym types, ordered by name.
 
 Parameters:
 * Sorting:    
@@ -245,7 +245,7 @@ GET /api/tipustoponim?results=5&startIndex=5
 
 ### GET '/api/toponimsgeo'
 
-Given an input geometry of type polygon specified in [Well Known Text format](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry), returns all toponims contained in this geometry by using the Postgis [ST_WITHIN](https://postgis.net/docs/ST_Within.html) function.
+Given an input geometry of type polygon specified in [Well Known Text format](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry), returns all toponyms contained in this geometry by using the Postgis [ST_WITHIN](https://postgis.net/docs/ST_Within.html) function.
 
 Parameters:
 * wkt (mandatory) - A string containing the WKT representation of a polygon. The polygon coordinates must be specified in WGS84 latitude longitude pairs (see example)
@@ -320,10 +320,10 @@ GET /api/toponimsgeo.htm?wkt=POLYGON((-2.384033203125005 37.022291107711915,-2.4
 
 ### GET '/api/toponim'
 
-General detal view for toponim. Given an id as parameter, returns the detailed information of a single toponim.
+General detal view for toponym. Given an id as parameter, returns the detailed information of a single toponym.
 
 Parameters:
-* id(mandatory) - A string containing a valid toponim id. Multiple comma separated toponim ids are allowed.
+* id(mandatory) - A string containing a valid toponym id. Multiple comma separated toponym ids are allowed.
 
 #### Example:
 
@@ -373,11 +373,11 @@ GET /api/toponim.htm?id=mlozano3502127189329321892
 
 ### GET '/api/arbre'
 
-Toponims have a tree structure; each toponim has one or more children toponims to indicate a "contains" or "belongs to" relationship. For instance, Western Africa is a child of Africa. This endpoint lists all children from a given root. 
+Toponyms have a tree structure; each toponym has one or more children toponyms to indicate a "contains" or "belongs to" relationship. For instance, Western Africa is a child of Africa. This endpoint lists all children from a given root. 
 
 Parameters:
-* root(mandatory) - A string containing a valid toponim id which indicates the root of the tree which will be returned
-* max_depth(optional) - The depth parameter is an integer that limits the depth of the tree. If max_depth=0, only the toponim identified by the 'root' parameter will be returned. If max_depth=1, the toponim indicated by root and its direct children. If max_depth=2, toponim indicated by root, its direct children and the children of direct children (grandchildren?), etc.
+* root(mandatory) - A string containing a valid toponym id which indicates the root of the tree which will be returned
+* max_depth(optional) - The depth parameter is an integer that limits the depth of the tree. If max_depth=0, only the toponym identified by the 'root' parameter will be returned. If max_depth=1, the toponym indicated by root and its direct children. If max_depth=2, toponym indicated by root, its direct children and the children of direct children (grandchildren?), etc.
 
 #### Example:
 
@@ -491,9 +491,9 @@ In production, we recommend using some sort of process manager to control the No
 
 ## Authors
 
-Developed by [Agustí Escobar](https://github.com/aescobarr)
+Developed by [Agustí Escobar](https://github.com/aescobarr).
 
 ## License
 
-This software is licensed under [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html)
+This software is licensed under [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html).
 
