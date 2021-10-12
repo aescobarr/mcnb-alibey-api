@@ -31,6 +31,13 @@ var cn = {
   password: config.database_password,
 };
 
+var knex_cn = {
+  client: 'pg',
+  connection: config.db_url
+};
+
+const dbcon = require('knex')(knex_cn);
+
 var db = pgp(cn);
 
 function getToponim(req, res, next) {
@@ -397,22 +404,14 @@ function getArbre(req, res, next) {
       success: false,
       message: 'Error in supplied parameters - ' + validate.error.toString(),
     });
-  }
+  }  
 
-  var squelPostgres = squel.useFlavour('postgres');
-
-  var q = squelPostgres.select()
-    .from('toponim', 't')
-    .join('toponims_api', 'ta', 't.id = ta.id')
-    .where(
-      't.denormalized_toponimtree ilike ? or t.id=?',
-      '%' + _root + '%', _root
-    )
-    .order('length(denormalized_toponimtree)', false)
-    .order('t.nom');
-
-  q.field('ta.*')
-    .field('t.denormalized_toponimtree');
+  var q = dbcon.select('toponim.denormalized_toponimtree','toponims_api.*')
+    .from('toponim')
+    .join('toponims_api','toponim.id','=','toponims_api.id')
+    .where('toponim.denormalized_toponimtree','ilike','%' + _root + '%')
+    .orWhere('toponim.id','=',_root)
+    .orderByRaw('length(denormalized_toponimtree), toponim.denormalized_toponimtree')
 
   console.log(q.toString());
 
@@ -458,25 +457,7 @@ function getArbre(req, res, next) {
           root_element = elem;
         }
       }
-
-      /*
-      for (i = 0; i < data_copy.length; i++){
-        elem = data_copy[i];
-        elem.fills = [];
-        referenced_copy[elem.id] = elem;
-      }
-
-      for (i = 0; i < data_copy.length; i++){
-        elem = data_copy[i];
-        var parent_element_tuple = elem.denormalized_toponimtree.split('#')[ elem.denormalized_toponimtree.split('#').length - 1 ];
-        var parent_id = parent_element_tuple.split('$')[0];
-        delete elem.denormalized_toponimtree;
-        if (referenced_copy[parent_id]){
-          referenced_copy[parent_id].fills.push(elem);
-        } else {
-          root_element = elem;
-        }
-      }*/
+      
       res.status(200)
         .json({
           records: root_element,
@@ -972,10 +953,8 @@ function getAuth(req, res, next) {
     });
   }
 
-  var squelPostgres = squel.useFlavour('postgres');
-  var q_select = squelPostgres.select()
-    .from('auth_user')
-    .where('password=? AND username=?', pwd, username);
+  var q_select = dbcon.select().from({a:'auth_user'}).where({'password':pwd,'username':username})
+  console.log(q_select.toString());
 
   db.one(q_select.toString())
     .then(function(data) {
