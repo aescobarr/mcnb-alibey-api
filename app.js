@@ -68,6 +68,31 @@ router.get('/arbre.htm', VerifyToken, db.getArbre);
 router.get('/auth', db.getAuth);
 router.get('/auth.htm', db.getAuth);
 
+// ROUTES FOR V1 API
+// =============================================================================
+var router_v1 = express.Router();// get an instance of the express Router
+
+router_v1.get('/sitepartname', VerifyToken, db.getToponimsPartNom);
+router_v1.get('/sitepartname.htm', VerifyToken, db.getToponimsPartNom);
+router_v1.get('/sitetype', VerifyToken, db.getTipusToponims);
+router_v1.get('/sitetype.htm', VerifyToken, db.getTipusToponims);
+router_v1.get('/sitegeo', VerifyToken, db.getToponimsGeo);
+router_v1.get('/sitegeo.htm', VerifyToken, db.getToponimsGeo);
+router_v1.get('/site', VerifyToken, db.getToponim);
+router_v1.get('/site.htm', VerifyToken, db.getToponim);
+router_v1.post('/comment_new', VerifyToken, upload.single('file'), db.postComment);
+router_v1.post('/comment_new.htm', VerifyToken, upload.single('file'), db.postComment);
+router_v1.post('/comment_edit', VerifyToken, upload.single('file'), db.editComment);
+router_v1.post('/comment_edit.htm', VerifyToken, upload.single('file'), db.editComment);
+router_v1.post('/comment_delete', VerifyToken, db.deleteComment);
+router_v1.post('/comment_delete.htm', VerifyToken, db.deleteComment);
+router_v1.get('/comment', VerifyToken, db.getComment);
+router_v1.get('/comment.htm', VerifyToken, db.getComment);
+router_v1.get('/tree', VerifyToken, db.getArbre);
+router_v1.get('/tree.htm', VerifyToken, db.getArbre);
+router_v1.get('/auth', db.getAuth);
+router_v1.get('/auth.htm', db.getAuth);
+
 // LOGGING --------------------------------------------
 
 app.use(expressWinston.logger({
@@ -90,6 +115,7 @@ app.use(expressWinston.logger({
 // REGISTER OUR ROUTES -------------------------------
 // all of our routes will be prefixed with /api
 app.use('/api', router);
+app.use('/api/v1', router_v1);
 
 // ERROR LOGGING -------------------------------------
 
