@@ -1,8 +1,8 @@
-# Georef API
+# Ali-Bey API
 
-Georef API - An express app that exposes [Georef](https://github.com/aescobarr/djangoref) data through a REST API. Georef API is built using [Express](https://expressjs.com/).
+Ali-Bey API - An express app that exposes [Ali-Bey](https://github.com/aescobarr/mcnb-alibey) data through a REST API. Ali-Bey API is built using [Express](https://expressjs.com/).
 
-This project is tightly related to [Georef](https://github.com/aescobarr/djangoref) and is not meant to work as a separate piece since it uses Georef underlying database.
+This project is tightly related to [Ali-Bey](https://github.com/aescobarr/mcnb-alibey) and is not meant to work as a separate piece since it uses Ali-Bey's underlying database.
 
 ## Getting Started
 
@@ -11,7 +11,7 @@ These instructions will help you set up a basic working development environment 
 
 ### Prerequisites
 
-We assume that Georef is installed in its dev form in the machine, with all its dependencies. Take a look at the [docs](https://github.com/aescobarr/djangoref/blob/master/README.md).
+We assume that Ali-Bey is installed in its dev form in the machine, with all its dependencies. Take a look at the [docs](https://github.com/aescobarr/mcnb-alibey/blob/master/README.md).
 
 Express is a [Node.js](https://nodejs.org/) framework, so we need to install Node. It can be installed from packages:
 ```bash
@@ -28,7 +28,7 @@ sudo apt install npm
 
 Clone the repository like this:
 ```bash
-git clone https://github.com/aescobarr/djangoref_api.git
+git clone https://github.com/aescobarr/mcnb-alibey-api.git
 ```
 
 Then from the newly cloned folder we need to install the dependencies using npm:
@@ -40,17 +40,17 @@ npm install
 
 Before starting the app, we need to:
 
-* Create an API user in Georef
+* Create an API user in Ali-Bey
 * Fill the config file with the appropiate values
-* Create the API tables in our Georef setup
+* Create the API tables in our Ali-Bey setup
 
 ##### API User
 
-The API User is a normal Georef user. To create it log on to your current Georef install with and admin user and create a new user. Then, go to the public.auth_user table in the PostgreSQL database and look up your user. Copy the fields user_name and password, you will need to put these values in the test section of the config file.
+The API User is a normal Ali-Bey user. To create it log on to your current Ali-Bey install with and admin user and create a new user. Then, go to the public.auth_user table in the PostgreSQL database and look up your user. Copy the fields user_name and password, you will need to put these values in the test section of the config file.
 
 ##### Config files
 
-In the freshly cloned repo we have an example configuration file [config.js.example](https://github.com/aescobarr/djangoref_api/blob/master/config.js.example). This file contains a config javascript object with the following structure:
+In the freshly cloned repo we have an example configuration file [config.js.example](https://github.com/aescobarr/mcnb-alibey-api/blob/master/config.js.example). This file contains a config javascript object with the following structure:
 ```javascript
 var config = {
   production: {
@@ -73,9 +73,9 @@ Each of the keys in config (production, test, etc) represents one of the possibl
 ```javascript
 some_environment: {
   secret: 'some_secret',                  //a long convoluted string used internally in auth stuff
-  database_host: 'localhost',             //ip address of the machine hosting the Georef PostgreSQL database
+  database_host: 'localhost',             //ip address of the machine hosting the Ali-Bey PostgreSQL database
   database_port: 5432,                    //The port in which PostgreSQL listens for incoming connections (usually 5432)
-  database_name: 'my_database',           //The name of the Georef PostgreSQL database 
+  database_name: 'my_database',           //The name of the Ali-Bey PostgreSQL database 
   database_user: 'my_user',               //The name of the user which will connect to the database
   database_password: 'my_password',       //The password of the above user
   test_user_name: 'test_user',            //This key is only used in the 'test' enviroment. It has to be the user_name field defined in the auth_user Postgresql table
@@ -86,16 +86,16 @@ some_environment: {
 
 ##### API Tables
 
-The API uses certain denormalized tables to accelerate some queries. These API tables are created via scripts that are included in the Georef project. The scripts are:
- * [Geometry API table](https://github.com/aescobarr/djangoref/blob/master/scripts/geometries_api.py)
- * [Toponyms API table](https://github.com/aescobarr/djangoref/blob/master/scripts/toponims_api.py)
- * [Toponym versions API table](https://github.com/aescobarr/djangoref/blob/master/scripts/toponimsversio_api.py)
+The API uses certain denormalized tables to accelerate some queries. These API tables are created via scripts that are included in the Ali-Bey project. The scripts are:
+ * [Geometry API table](https://github.com/aescobarr/mcnb-alibey/blob/master/scripts/geometries_api.py)
+ * [Toponyms API table](https://github.com/aescobarr/mcnb-alibey/blob/master/scripts/toponims_api.py)
+ * [Toponym versions API table](https://github.com/aescobarr/mcnb-alibey/blob/master/scripts/toponimsversio_api.py)
 
-To run these scripts, perform the following steps (we assume that the user that owns the Georef project folder is called georef):
+To run these scripts, perform the following steps (we assume that the user that owns the Ali-Bey project folder is called georef):
 ```bash
 # become georef
 su georef
-# go to Georef project folder 
+# go to Ali-Bey project folder 
 cd /home/georef/georef
 # activate georef python virtual environment (we assume it's called georef)
 workon georef
@@ -470,7 +470,7 @@ test: {
 }
 ```
 
-Finally, we run the tests from the shell with the npm run command. From the root folder of the Georef API project, type:
+Finally, we run the tests from the shell with the npm run command. From the root folder of the Ali-Bey API project, type:
 ```bash
 npm run test
 ```
