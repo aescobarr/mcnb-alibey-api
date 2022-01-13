@@ -1,6 +1,6 @@
 # Ali-Bey API
 
-Ali-Bey API - An express app that exposes [Ali-Bey](https://github.com/aescobarr/mcnb-alibey) data through a REST API. Ali-Bey API is built using [Express](https://expressjs.com/).
+Ali-Bey API - Exposes [Ali-Bey](https://github.com/aescobarr/mcnb-alibey) data through a REST API, built using [Express](https://expressjs.com/).
 
 This project is tightly related to [Ali-Bey](https://github.com/aescobarr/mcnb-alibey) and is not meant to work as a separate piece since it uses Ali-Bey's underlying database.
 
@@ -91,12 +91,12 @@ The API uses certain denormalized tables to accelerate some queries. These API t
  * [Toponyms API table](https://github.com/aescobarr/mcnb-alibey/blob/master/scripts/toponims_api.py)
  * [Toponym versions API table](https://github.com/aescobarr/mcnb-alibey/blob/master/scripts/toponimsversio_api.py)
 
-To run these scripts, perform the following steps (we assume that the user that owns the Ali-Bey project folder is called georef):
+To run these scripts, perform the following steps (we assume that the user that owns the Ali-Bey project folder is called alibey):
 ```bash
-# become georef
+# become alibey
 su georef
 # go to Ali-Bey project folder 
-cd /home/georef/georef
+cd /home/alibey/georef
 # activate georef python virtual environment (we assume it's called georef)
 workon georef
 # execute each script
