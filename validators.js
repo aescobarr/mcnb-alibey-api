@@ -1,6 +1,7 @@
 'use strict';
 
 var Joi = require('joi');
+var wicket = require('wicket');
 
 var toponimIdSchema = Joi.object().keys({
   id: Joi.string().required(),
@@ -28,7 +29,14 @@ var arbre = Joi.object().keys({
 });
 
 var geo = Joi.object().keys({
-  wkt: Joi.string().required(),
+  wkt: Joi
+    .string()
+    .required()
+    .custom(function(value,helper){
+      const wkt = new wicket.Wkt();
+      wkt.read(value);
+      return true;
+    })
 });
 
 var comment_new = Joi.object().keys({

@@ -9,6 +9,7 @@ const config = require('./config.js').get(process.env.NODE_ENV);
 // var util = require('util');
 const moment = require('moment');
 const val = require('./validators.js');
+const knex = require('knex');
 //const Joi = require('joi');
 // var fs = require('fs');
 
@@ -29,15 +30,6 @@ function getVersion(req, res, next) {
   res.status(200).json({
     version: '2.0.0'
   });  
-}
-
-async function getTableData(req, res, next) {  
-  try {
-    const blogs = await pg.select("*").from("auth_user");
-    res.send(blogs);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 }
 
 function getToponim(req, res, next) {
@@ -328,113 +320,138 @@ function getToponimsPartNom(req, res, next) {
   });  
 }
 
-// function getArbre(req, res, next) {
-//   var params = req.query;
-//   var _root = params.root;
-//   var _max_depth = params.max_depth;
+function getArbre(req, res, next) {
+  const params = req.query;
+  const _root = params.root;
+  const _max_depth = params.max_depth;
 
-//   var validate = Joi.validate(req.query, val.getArbreValidator, {
-//     // return an error if body has an unrecognised property
-//     allowUnknown: false,
-//     // return all errors a payload contains, not just the first one Joi finds
-//     abortEarly: false,
-//   });
+  const validate = val.getArbreValidator.validate(params);
 
-//   if (validate.error){
-//     console.log(validate.error.toString());
-//     return res.status(403).send({
-//       success: false,
-//       message: 'Error in supplied parameters - ' + validate.error.toString(),
-//     });
-//   }
+  if (validate.error){
+    console.log(validate.error.toString());
+    return res.status(403).send({
+      success: false,
+      message: 'Error in supplied parameters - ' + validate.error.toString(),
+    });
+  }
 
-//   var squelPostgres = squel.useFlavour('postgres');
+  const q = pg('toponim')
+  .join('toponims_api','toponim.id','=','toponims_api.id')
+  .where('toponim.denormalized_toponimtree','ilike','%' + _root + '%')
+  .orWhere('toponim.id','=',_root)
+  .orderBy(pg.raw('length(toponim.denormalized_toponimtree)'), 'desc')
+  .orderBy('toponim.nom')  
 
-//   var q = squelPostgres.select()
-//     .from('toponim', 't')
-//     .join('toponims_api', 'ta', 't.id = ta.id')
-//     .where(
-//       't.denormalized_toponimtree ilike ? or t.id=?',
-//       '%' + _root + '%', _root
-//     )
-//     .order('length(denormalized_toponimtree)', false)
-//     .order('t.nom');
+  //console.log(q.toString());
+  q.select('toponims_api.*','toponim.denormalized_toponimtree')
+  .then(function(data) {
+    var original_data_json = JSON.stringify(data);
+      var data_copy = JSON.parse(original_data_json);
+      var data_cleaned = [];
+      var referenced_copy = {};
+      var root_element = { records: {} };
+      var i;
+      var elem;
 
-//   q.field('ta.*')
-//     .field('t.denormalized_toponimtree');
+      for (i = 0; i < data_copy.length; i++){
+        elem = data_copy[i];
+        var tree_depth;
+        if (elem.denormalized_toponimtree.split('#').length === 1 && elem.denormalized_toponimtree.length === 0){
+          tree_depth = 0;
+        } else {
+          tree_depth = elem.denormalized_toponimtree.split('#').length;
+        }
+        if (_max_depth == null || tree_depth <= _max_depth){
+          elem.nomToponim = elem.nomtoponim;
+          delete elem.nomtoponim;
+          data_cleaned.push(elem);
+        }
+      }
 
-//   console.log(q.toString());
+      for (i = 0; i < data_cleaned.length; i++){
+        elem = data_cleaned[i];
+        elem.fills = [];
+        referenced_copy[elem.id] = elem;
+      }
 
-//   db.any(q.toString())
-//     .then(function(data) {
-//       var original_data_json = JSON.stringify(data);
-//       var data_copy = JSON.parse(original_data_json);
-//       var data_cleaned = [];
-//       var referenced_copy = {};
-//       var root_element = { records: {} };
-//       var i;
-//       var elem;
+      for (i = 0; i < data_cleaned.length; i++){
+        elem = data_cleaned[i];
+        var parent_element_tuple = elem.denormalized_toponimtree.split('#')[ elem.denormalized_toponimtree.split('#').length - 1 ];
+        var parent_id = parent_element_tuple.split('$')[0];
+        delete elem.denormalized_toponimtree;
+        if (referenced_copy[parent_id]){
+          referenced_copy[parent_id].fills.push(elem);
+        } else {
+          root_element = elem;
+        }
+      }      
+      res.status(200)
+        .json({
+          records: root_element,
+        });
+    })
+    .catch(function(err) {
+      return next(err);
+  });  
+}
 
-//       for (i = 0; i < data_copy.length; i++){
-//         elem = data_copy[i];
-//         var tree_depth;
-//         if (elem.denormalized_toponimtree.split('#').length === 1 && elem.denormalized_toponimtree.length === 0){
-//           tree_depth = 0;
-//         } else {
-//           tree_depth = elem.denormalized_toponimtree.split('#').length;
-//         }
-//         if (_max_depth == null || tree_depth <= _max_depth){
-//           elem.nomToponim = elem.nomtoponim;
-//           delete elem.nomtoponim;
-//           data_cleaned.push(elem);
-//         }
-//       }
+function getToponimsGeo(req, res, next) {
+  const params = req.query;
+  const wkt = params.wkt;
 
-//       for (i = 0; i < data_cleaned.length; i++){
-//         elem = data_cleaned[i];
-//         elem.fills = [];
-//         referenced_copy[elem.id] = elem;
-//       }
+  const validate = val.getToponimsGeoValidator.validate(params);
 
-//       for (i = 0; i < data_cleaned.length; i++){
-//         elem = data_cleaned[i];
-//         var parent_element_tuple = elem.denormalized_toponimtree.split('#')[ elem.denormalized_toponimtree.split('#').length - 1 ];
-//         var parent_id = parent_element_tuple.split('$')[0];
-//         delete elem.denormalized_toponimtree;
-//         if (referenced_copy[parent_id]){
-//           referenced_copy[parent_id].fills.push(elem);
-//         } else {
-//           root_element = elem;
-//         }
-//       }
+  if (validate.error){
+    console.log(validate.error.toString());
+    return res.status(403).send({
+      success: false,
+      message: 'Error in supplied parameters - ' + validate.error.toString(),
+    });
+  }
 
-//       /*
-//       for (i = 0; i < data_copy.length; i++){
-//         elem = data_copy[i];
-//         elem.fills = [];
-//         referenced_copy[elem.id] = elem;
-//       }
+  const q = pg('toponims_api')
+  .join('geometries_api','toponims_api.id','=','geometries_api.id')
+  .where( pg.raw('ST_WITHIN(geometria, ST_GeomFromText(\'' + wkt + '\',4326))' ) );  
 
-//       for (i = 0; i < data_copy.length; i++){
-//         elem = data_copy[i];
-//         var parent_element_tuple = elem.denormalized_toponimtree.split('#')[ elem.denormalized_toponimtree.split('#').length - 1 ];
-//         var parent_id = parent_element_tuple.split('$')[0];
-//         delete elem.denormalized_toponimtree;
-//         if (referenced_copy[parent_id]){
-//           referenced_copy[parent_id].fills.push(elem);
-//         } else {
-//           root_element = elem;
-//         }
-//       }*/
-//       res.status(200)
-//         .json({
-//           records: root_element,
-//         });
-//     })
-//     .catch(function(err) {
-//       return next(err);
-//     });
-// }
+  const columns = [
+    'toponims_api.id',
+    'toponims_api.nomtoponim',
+    'toponims_api.nom',
+    'toponims_api.aquatic',
+    'toponims_api.tipus',
+    'toponims_api.datacaptura',
+    'toponims_api.coordenadaxcentroide',
+    'toponims_api.coordenadaycentroide',
+    'toponims_api.incertesa'
+  ]
+
+  console.log(q.toString());
+
+  q.select(columns)
+  .then(function(data) {
+    for (var i = 0; i < data.length; i++){
+      var elem = data[i];
+      elem.nomToponim = elem.nomtoponim;
+      delete elem.nomtoponim;
+      elem.dataCaptura = elem.datacaptura;
+      delete elem.datacaptura;
+      elem.coordXCentroide = elem.coordenadaxcentroide;
+      delete elem.coordenadaxcentroide;
+      elem.coordYCentroide = elem.coordenadaycentroide;
+      delete elem.coordenadaycentroide;
+    }
+    res.status(200)
+      .json({
+        totalRecords: data.length,
+        success: true,
+        message: 'OK',
+        records: data,
+      });
+  })
+  .catch(function(err) {
+    return next(err);
+  });  
+}
 
 // function getToponimsGeo(req, res, next) {
 //   var params = req.query;
@@ -954,10 +971,11 @@ async function getAuth(req, res, next) {
 // };
 
 module.exports = {
-  getVersion: getVersion,
-  getTableData: getTableData,
-  getAuth: getAuth,
-  getToponim: getToponim,
-  getTipusToponims: getTipusToponims,
   getToponimsPartNom: getToponimsPartNom,
+  getAuth: getAuth,
+  getTipusToponims: getTipusToponims,
+  getToponim: getToponim,
+  getArbre: getArbre,
+  getToponimsGeo: getToponimsGeo,
+  getVersion: getVersion,  
 }
