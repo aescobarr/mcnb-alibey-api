@@ -7,30 +7,10 @@ const config = require('./config.js').get(process.env.NODE_ENV);
 // const knex = require('knex');
 // var squel = require('squel');
 // var util = require('util');
-// var moment = require('moment');
+const moment = require('moment');
 const val = require('./validators.js');
 //const Joi = require('joi');
 // var fs = require('fs');
-
-
-// var options = {
-//   // Initialization Options
-//   promiseLib: promise,
-// };
-
-// var pgp = require('pg-promise')(options);
-
-// var QueryResultError = pgp.errors.QueryResultError;
-// var qrec = pgp.errors.queryResultErrorCode;
-
-
-// var cn = {
-//   host: config.database_host,
-//   port: config.database_port,
-//   database: config.database_name,
-//   user: config.database_user,
-//   password: config.database_password,
-// };
 
 const pg = require('knex')({
   client: 'pg',
@@ -44,8 +24,6 @@ const pg = require('knex')({
     ssl: config['DB_SSL'] ? { rejectUnauthorized: false } : false,
   },
 });
-
-// var db = pgp(cn);
 
 function getVersion(req, res, next) {
   res.status(200).json({
@@ -62,7 +40,7 @@ async function getTableData(req, res, next) {
   }
 }
 
-async function getToponim(req, res, next) {
+function getToponim(req, res, next) {
 
   var params = req.query;
   var id = params.id;
@@ -83,34 +61,24 @@ async function getToponim(req, res, next) {
     var multiple_id_array = id.split(',');
     multiple_id = "'" + multiple_id_array.join('\',\'') + "'";
   }
-
-  // var squelPostgres = squel.useFlavour('postgres');  
-  // var q = squelPostgres.select().from('toponim', 't').join('toponims_api', 'ta', 't.id = ta.id');
-  // var q_versions = squelPostgres.select().from('toponimsversio_api');
-  const q = await pg("toponim").join("toponims_api","toponim.id","=","toponimsversio_api.id");
-  const q_versions = await pg("toponimsversio_api").select();
+  
+  const q = pg("toponim").join("toponims_api","toponim.id","=","toponims_api.id");
+  const q_versions = pg("toponimsversio_api");
 
   if (single_id){
-    q.where(util.format("ta.id = '%s'", single_id));
-    q_versions.where(util.format("idtoponim = '%s'", single_id));
-  } else if (multiple_id){
-    q.where(util.format('ta.id in (%s)', multiple_id));
-    q_versions.where(util.format('idtoponim in (%s)', multiple_id));
+    q.where('toponims_api.id', single_id);
+    q_versions.where('idtoponim', single_id);
+  } else if (multiple_id){    
+    q.whereIn('toponims_api.id',multiple_id);    
+    q_versions.whereIn('idtoponim', multiple_id);
   }
-
-  q.field('ta.id')
-    .field('ta.nomtoponim')
-    .field('ta.nom')
-    .field('ta.aquatic')
-    .field('ta.tipus')
-    .field('t.denormalized_toponimtree');
 
   var versions_map = {};
 
-  db.any(q_versions.toString())
-    .then(function(data) {
-      for (var i = 0; i < data.length; i++){
-        var elem = data[i];
+  q_versions.select()
+  .then(function(rows){
+      for (var i = 0; i < rows.length; i++){
+        var elem = rows[i];
         var formatted_date_string = 'Data no establerta';
         if (elem.datacaptura != null){
           var formatted_date = moment(elem.datacaptura);
@@ -142,61 +110,120 @@ async function getToponim(req, res, next) {
         }
         versions_map[copied_elem.idtoponim].push(copied_elem);
       }
+      q.select()
+      .then(function(data){
+        var original_data_json = JSON.stringify(data);
+        var data_copy = JSON.parse(original_data_json);
+        for (var i = 0; i < data_copy.length; i++){
+          var elem = data_copy[i];
+          elem.versions = versions_map[elem.id];
+          elem.llinatge = [];
+          var elems_llinatge = elem.denormalized_toponimtree.split('#');
+          for (var j=0; j < elems_llinatge.length; j++){
+            var elem_llinatge = elems_llinatge[j].split('$');
+            elem.llinatge.push({ id: elem_llinatge[0], nom: elem_llinatge[1]});
+          }
+        }
+        if (single_id){
+          res.status(200)
+            .json({
+              totalRecords: data_copy.length,
+              success: true,
+              message: 'OK',
+              recordsReturned: data_copy.length,
+              id: data_copy[0].id,
+              aquatic: data_copy[0].aquatic === false ? 'No' : 'Sí',
+              nomToponim: data_copy[0].nomtoponim,
+              tipus: data_copy[0].tipus,
+              nom: data_copy[0].nom,
+              versions: data_copy[0].versions,
+              llinatge: data_copy[0].llinatge.reverse()
+            });
+        } else {
+          var result_arr = [];
+          for (i = 0; i < data_copy.length; i++){
+            result_arr.push({
+              id: data_copy[i].id,
+              aquatic: data_copy[i].aquatic === false ? 'No' : 'Sí',
+              nomToponim: data_copy[i].nomtoponim,
+              tipus: data_copy[i].tipus,
+              nom: data_copy[i].nom,
+              versions: data_copy[i].versions,
+              llinatge: data_copy[i].llinatge.reverse()
+            });
+          }
+          res.status(200)
+            .json({
+              totalRecords: data_copy.length,
+              success: true,
+              message: 'OK',
+              recordsReturned: data_copy.length,
+              records: result_arr
+            });
+        }
+      })
+      .catch(function(error){
+        return next(error);
+      });
+  })
+  .catch(function(error){
+    return next(error);
+  });
+}
 
-      db.any(q.toString())
-        .then(function(data) {
-          var original_data_json = JSON.stringify(data);
-          var data_copy = JSON.parse(original_data_json);
-          for (var i = 0; i < data_copy.length; i++){
-            var elem = data_copy[i];
-            elem.versions = versions_map[elem.id];
-            elem.llinatge = [];
-            var elems_llinatge = elem.denormalized_toponimtree.split('#');
-            for (var j=0; j < elems_llinatge.length; j++){
-              var elem_llinatge = elems_llinatge[j].split('$');
-              elem.llinatge.push({ id: elem_llinatge[0], nom: elem_llinatge[1]});
-            }
-          }
-          if (single_id){
-            res.status(200)
-              .json({
-                totalRecords: data_copy.length,
-                success: true,
-                message: 'OK',
-                recordsReturned: data_copy.length,
-                id: data_copy[0].id,
-                aquatic: data_copy[0].aquatic === false ? 'No' : 'Sí',
-                nomToponim: data_copy[0].nomtoponim,
-                tipus: data_copy[0].tipus,
-                nom: data_copy[0].nom,
-                versions: data_copy[0].versions,
-                llinatge: data_copy[0].llinatge.reverse()
-              });
-          } else {
-            var result_arr = [];
-            for (i = 0; i < data_copy.length; i++){
-              result_arr.push({
-                id: data_copy[i].id,
-                aquatic: data_copy[i].aquatic === false ? 'No' : 'Sí',
-                nomToponim: data_copy[i].nomtoponim,
-                tipus: data_copy[i].tipus,
-                nom: data_copy[i].nom,
-                versions: data_copy[i].versions,
-                llinatge: data_copy[i].llinatge.reverse()
-              });
-            }
-            res.status(200)
-              .json({
-                totalRecords: data_copy.length,
-                success: true,
-                message: 'OK',
-                recordsReturned: data_copy.length,
-                records: result_arr
-              });
-          }
-        })
-        .catch(function(err) {
-          return next(err);
+function getTipusToponims(req, res, next) {
+
+  const params = req.query;
+  const dir = params.dir;
+  const results = params.results;
+  const startIndex = params.startIndex;
+  var totalRecords = 0;
+
+  var validate = val.getTipusToponimValidator.validate(params);
+
+  if (validate.error){
+    console.log(validate.error.toString());
+    return res.status(403).send({
+      success: false,
+      message: 'Error in supplied parameters - ' + validate.error.toString(),
+    });
+  }
+
+  const q = pg('tipustoponim');
+  const q_count = pg('tipustoponim').count('id');
+
+  q_count.select()
+    .then(function(data){      
+      totalRecords = data.count;
+    })
+    .catch(function(err) {
+      console.log(err);
+    });  
+
+  if(dir){
+    q.orderBy('nom',dir);
+  }else{
+    q.orderBy('nom');
+  }  
+
+  if (results && !isNaN(parseInt(results, 10))){
+    q.limit(parseInt(results, 10));
+  }
+
+  if (startIndex && !isNaN(parseInt(startIndex, 10))){
+    q.offset(parseInt(startIndex, 10));
+  }
+
+  q.select('id','nom')
+    .then(function(data) {
+      res.status(200)
+        .json({
+          totalRecords: totalRecords,
+          success: true,
+          recordsReturned: data.length,
+          startIndex: startIndex,
+          dir: dir,
+          records: data,
         });
     })
     .catch(function(err) {
@@ -204,203 +231,102 @@ async function getToponim(req, res, next) {
     });
 }
 
-// function getTipusToponims(req, res, next) {
+function getToponimsPartNom(req, res, next) {
 
-//   var params = req.query;
-//   var dir = params.dir;
-//   var results = params.results;
-//   var startIndex = params.startIndex;
-//   var totalRecords = 0;
+  var params = req.query;
+  var sort = params.sort;
+  var sort_translation = {
+    nom: 'nom',
+    aquatic: 'aquatic',
+    tipus: 'idtipustoponim',
+    data: 'datacaptura',
+  };
+  var dir = params.dir;
+  var idtipus = params.idtipus;
+  var results = params.results;
+  var startIndex = params.startIndex;
+  var query = params.query;
+  var totalRecords = 0;
 
-//   var validate = Joi.validate(req.query, val.getTipusToponimValidator, {
-//     // return an error if body has an unrecognised property
-//     allowUnknown: false,
-//     // return all errors a payload contains, not just the first one Joi finds
-//     abortEarly: false,
-//   });
+  var validate = val.getToponimsPartNomValidator.validate(params);
 
-//   if (validate.error){
-//     console.log(validate.error.toString());
-//     return res.status(403).send({
-//       success: false,
-//       message: 'Error in supplied parameters - ' + validate.error.toString(),
-//     });
-//   }
+  if (validate.error){
+    console.log(validate.error.toString());
+    return res.status(403).send({
+      success: false,
+      message: 'Error in supplied parameters - ' + validate.error.toString(),
+    });
+  }
+  
 
-//   var squelPostgres = squel.useFlavour('postgres');
-//   var q = squelPostgres.select()
-//     .from('tipustoponim', 't');
-//   var q_count = q.clone().field('count(*)');
+  const q = pg('toponims_api');
+  const columns = [
+    'id',
+    'nomtoponim',
+    'nom',
+    'aquatic',
+    'tipus',
+    'idtipus',
+    'datacaptura',
+    'coordenadaxcentroide',
+    'coordenadaycentroide',
+    'incertesa'
+  ];  
 
-//   q.field('id')
-//     .field('nom');
+  if (!sort){
+    sort = 'nom';
+  }
 
-//   db.one(q_count.toString())
-//     .then(function(data) {
-//       totalRecords = parseInt(data.count, 10);
-//     })
-//     .catch(function(err) {
-//       console.log(err);
-//     });
+  if (sort){
+    if (dir){      
+      q.orderBy(sort_translation[sort],dir);    
+    } else {
+      q.orderBy(sort_translation[sort]);
+    }
+  }
 
-//   if (dir === 'desc'){
-//     q.order('nom', false);
-//   } else if (dir === 'asc') {
-//     q.order('nom');
-//   } else {
-//     q.order('nom');
-//   }
+  if (idtipus){
+    q.where('idtipus', idtipus);
+  }
 
-//   if (results && !isNaN(parseInt(results, 10))){
-//     q.limit(parseInt(results, 10));
-//   }
+  if (query){
+    q.where('nom', 'ilike', '%' + query + '%');
+  }
 
-//   if (startIndex && !isNaN(parseInt(startIndex, 10))){
-//     q.offset(parseInt(startIndex, 10));
-//   }
+  const q_count = pg('toponims_api').count('id');  
 
-//   db.any(q.toString())
-//     .then(function(data) {
-//       res.status(200)
-//         .json({
-//           totalRecords: totalRecords,
-//           success: true,
-//           recordsReturned: data.length,
-//           startIndex: startIndex,
-//           dir: dir,
-//           records: data,
-//         });
-//     })
-//     .catch(function(err) {
-//       return next(err);
-//     });
-// }
+  if (results && !isNaN(parseInt(results, 10))){
+    q.limit(parseInt(results, 10));
+  }
 
-
-// function getToponimsPartNom(req, res, next) {
-
-//   var params = req.query;
-//   var sort = params.sort;
-//   var sort_translation = {
-//     nom: 'nom',
-//     aquatic: 'aquatic',
-//     tipus: 'idtipustoponim',
-//     data: 'datacaptura',
-//   };
-//   var dir = params.dir;
-//   var idtipus = params.idtipus;
-//   var results = params.results;
-//   var startIndex = params.startIndex;
-//   var query = params.query;
-//   var totalRecords = 0;
-
-//   var validate = Joi.validate(req.query, val.getToponimsPartNomValidator, {
-//     // return an error if body has an unrecognised property
-//     allowUnknown: false,
-//     // return all errors a payload contains, not just the first one Joi finds
-//     abortEarly: false,
-//   });
-
-//   if (validate.error){
-//     console.log(validate.error.toString());
-//     return res.status(403).send({
-//       success: false,
-//       message: 'Error in supplied parameters - ' + validate.error.toString(),
-//     });
-//   }
-
-//   var squelPostgres = squel.useFlavour('postgres');
-
-//   var q = squelPostgres.select()
-//     .from('toponims_api', 't');
-
-//   q.field('id')
-//     .field('nomtoponim')
-//     .field('nom')
-//     .field('aquatic')
-//     .field('tipus')
-//     .field('idtipus')
-//     .field('datacaptura')
-//     .field('coordenadaxcentroide')
-//     .field('coordenadaycentroide')
-//     .field('incertesa');
-
-//   if (!sort){
-//     sort = 'nom';
-//   }
-
-//   if (sort){
-//     if (dir){
-//       if (dir === 'asc'){
-//         q.order(sort_translation[sort]);
-//       } else {
-//         q.order(sort_translation[sort], false);
-//       }
-//     } else {
-//       q.order(sort_translation[sort]);
-//     }
-//   }
-
-//   if (idtipus){
-//     q.where('idtipus = ?', idtipus);
-//   }
-
-//   if (query){
-//     q.where('nom ilike ?', '%' + query + '%');
-//   }
-
-//   var q_count = squelPostgres.select().from(q.clone(), 's').field('count(*)');
-
-//   if (results && !isNaN(parseInt(results, 10))){
-//     q.limit(parseInt(results, 10));
-//   }
-
-//   if (startIndex && !isNaN(parseInt(startIndex, 10))){
-//     q.offset(parseInt(startIndex, 10));
-//   }
-
-//   // Modified so that totalRecords == records returned (data.length)
-//   /* db.any(q.toString())
-//     .then(function(data) {
-//       res.status(200)
-//         .json({
-//           totalRecords: data.length,
-//           success: true,
-//           recordsReturned: data.length,
-//           startIndex: startIndex,
-//           dir: dir,
-//           sort: sort,
-//           records: data,
-//         });
-//     })
-//     .catch(function(err) {
-//       return next(err);
-//   });*/
-
-//   db.one(q_count.toString())
-//     .then(function(data_count) {
-//       totalRecords = parseInt(data_count.count, 10);
-//       db.any(q.toString())
-//         .then(function(data) {
-//           res.status(200)
-//             .json({
-//               totalRecords: totalRecords,
-//               success: true,
-//               recordsReturned: data.length,
-//               startIndex: startIndex,
-//               dir: dir,
-//               sort: sort,
-//               records: data,
-//             });
-//         })
-//         .catch(function(err) {
-//           return next(err);
-//         });
-//     })
-//     .catch(function(err) {
-//       console.log(err);
-//     });
-// }
+  if (startIndex && !isNaN(parseInt(startIndex, 10))){
+    q.offset(parseInt(startIndex, 10));
+  }
+      
+  q_count.select()
+  .then(function(data) {
+    totalRecords = data.count;
+    q.select(columns)
+    .then(function(data) {
+      res.status(200)
+        .json({
+          totalRecords: totalRecords,
+          success: true,
+          recordsReturned: data.length,
+          startIndex: startIndex,
+          dir: dir,
+          sort: sort,
+          records: data,
+        });
+    })
+    .catch(function(err) {
+      return next(err);
+    });
+  })
+  .catch(function(err) {
+    return next(err);
+  });  
+}
 
 // function getArbre(req, res, next) {
 //   var params = req.query;
@@ -1014,57 +940,6 @@ async function getAuth(req, res, next) {
 
 }
 
-// function getAuth(req, res, next) {
-//   var params = req.query;
-//   var username = params.user;
-//   var pwd = params.pwd;
-
-//   var validate = Joi.validate(req.query, val.getAuthValidator, {
-//     // return an error if body has an unrecognised property
-//     allowUnknown: false,
-//     // return all errors a payload contains, not just the first one Joi finds
-//     abortEarly: false,
-//   });
-
-//   if (validate.error){
-//     console.log(validate.error.toString());
-//     return res.status(403).send({
-//       success: false,
-//       message: 'Error in supplied parameters - ' + validate.error.toString(),
-//     });
-//   }
-
-//   var squelPostgres = squel.useFlavour('postgres');
-//   var q_select = squelPostgres.select()
-//     .from('auth_user')
-//     .where('password=? AND username=?', pwd, username);
-
-//   db.one(q_select.toString())
-//     .then(function(data) {
-//       var token = jwt.sign({ id: data.id }, config.secret, {
-//         expiresIn: 86400, // expires in 24 hours
-//       });
-//       res.status(200)
-//         .json({
-//           success: true,
-//           message: 'OK',
-//           token: token,
-//         });
-//     })
-//     .catch(function(err) {
-//       if (err.code === qrec.noData){
-//         res.status(401)
-//           .json({
-//             success: true,
-//             message: 'Authentification failed',
-//           });
-//       } else {
-//         return next(err);
-//       }
-//     });
-// }
-
-
 // module.exports = {
 //   getToponimsPartNom: getToponimsPartNom,
 //   getAuth: getAuth,
@@ -1081,5 +956,8 @@ async function getAuth(req, res, next) {
 module.exports = {
   getVersion: getVersion,
   getTableData: getTableData,
-  getAuth: getAuth
+  getAuth: getAuth,
+  getToponim: getToponim,
+  getTipusToponims: getTipusToponims,
+  getToponimsPartNom: getToponimsPartNom,
 }
