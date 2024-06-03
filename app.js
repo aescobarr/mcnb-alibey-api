@@ -47,7 +47,7 @@ const port = config.running_port || 8080;// set our port
 // =============================================================================
 const router = express.Router();// get an instance of the express Router
 
-router.get('/version',  VerifyToken, db.getVersion);
+router.get('/version',  db.getVersion);
 router.get('/auth', db.getAuth);
 router.get('/toponim', db.getToponim);
 router.get('/tipustoponim', db.getTipusToponims);

@@ -9,7 +9,7 @@ const config = require('./config.js').get(process.env.NODE_ENV);
 // var util = require('util');
 const moment = require('moment');
 const val = require('./validators.js');
-const knex = require('knex');
+//const knex = require('knex');
 //const Joi = require('joi');
 // var fs = require('fs');
 
@@ -36,7 +36,7 @@ function getToponim(req, res, next) {
 
   var params = req.query;
   var id = params.id;
-  var single_id, multiple_id;
+  var single_id, multiple_id_array;
 
   const validate = val.getToponimsValidator.validate(req.query);
   
@@ -50,8 +50,7 @@ function getToponim(req, res, next) {
   if (id.indexOf(',') === -1){
     single_id = id;
   } else {
-    var multiple_id_array = id.split(',');
-    multiple_id = "'" + multiple_id_array.join('\',\'') + "'";
+    multiple_id_array = id.split(',');    
   }
   
   const q = pg("toponim").join("toponims_api","toponim.id","=","toponims_api.id");
@@ -60,9 +59,9 @@ function getToponim(req, res, next) {
   if (single_id){
     q.where('toponims_api.id', single_id);
     q_versions.where('idtoponim', single_id);
-  } else if (multiple_id){    
-    q.whereIn('toponims_api.id',multiple_id);    
-    q_versions.whereIn('idtoponim', multiple_id);
+  } else if (multiple_id_array){    
+    q.whereIn('toponims_api.id',multiple_id_array);
+    q_versions.whereIn('idtoponim', multiple_id_array);
   }
 
   var versions_map = {};

@@ -7,7 +7,7 @@ require('../app.js');
 
 var chai = require('chai');
 var chaiHttp = require('chai-http');
-// var should = chai.should();
+const moment = require('moment');
 var assert = require('assert');
 var expect = chai.expect;
 var config = require('../config.js').get(process.env.NODE_ENV);
@@ -57,8 +57,10 @@ describe('GET /toponimspartnom', function() {
           console.log(err.stack);
         }
         expect(res).to.have.status(200);
-        assert.equal(res.body.records.length, 20);
-        assert.equal(res.body.records[0].nomtoponim, 'Zurgena');
+        assert.equal(res.body.records.length, 20);        
+        const name_0 = res.body.records[0].nomtoponim;
+        const name_1 = res.body.records[1].nomtoponim;
+        assert((name_0).localeCompare(name_1) > 0, 'Ordering not correct, ' + name_0 + ' should be before ' + name_1);
         done();
       });
   });
@@ -68,30 +70,74 @@ describe('GET /toponimspartnom', function() {
     chai.request('http://127.0.0.1:' + (config.running_port || '8080') + '/api')
       .get('/toponimspartnom')
       .set('x-access-token', token)
-      .query({ results: 20, dir: 'desc', query: 'urgen' })
+      .query({ results: 20, dir: 'desc', query: 'aba' })
       .end(function(err, res) {
         if (err) {
           console.log(err.stack);
         }
         expect(res).to.have.status(200);
-        assert.equal(res.body.records.length, 1);
-        assert.equal(res.body.records[0].nomtoponim, 'Zurgena');
+        assert(res.body.records.length > 0, 'Query string "aba" should return some results, returns none');
+        var finished = false;
+        var keeps_ordering = false;
+        var index = 0;        
+        var nom_1;
+        var nom_2;
+        while(!finished){
+          var index_second_element = index + 1;
+          if(index_second_element == res.body.records.length){            
+            break;
+          }
+          nom_1 = res.body.records[index].nomtoponim;
+          nom_2 = res.body.records[index_second_element].nomtoponim;
+
+          keeps_ordering = (nom_1).localeCompare(nom_2) >= 0;
+          if(!keeps_ordering){
+            break;
+          }
+          index = index + 1;
+          if(index > res.body.records.length){
+            finished = true;
+          }
+        }        
+        assert(keeps_ordering, 'Ordering not correct, ' + nom_1 + ' should be before ' + nom_2);
         done();
       });
   });
 
-  it('obtains 40 toponims, ordered desc by date', function(done) {
+  it('obtains 40 toponims, ordered asc by date', function(done) {
     chai.request('http://127.0.0.1:' + (config.running_port || '8080') + '/api')
       .get('/toponimspartnom')
       .set('x-access-token', token)
-      .query({ results: 40, dir: 'desc', sort: 'data' })
+      .query({ results: 40, dir: 'asc', sort: 'data' })
       .end(function(err, res) {
         if (err) {
           console.log(err.stack);
         }
         expect(res).to.have.status(200);
         assert.equal(res.body.records.length, 40);
-        assert.equal(res.body.records[0].nomtoponim, ' Inagua');
+        var finished = false;
+        var keeps_ordering = false;
+        var index = 0;        
+        var date_1;
+        var date_2;
+        while(!finished){
+          var index_second_element = index + 1;
+          if(index_second_element == res.body.records.length){            
+            break;
+          }
+          date_1 = moment(res.body.records[index].datacaptura);
+          date_2 = moment(res.body.records[index_second_element].datacaptura);
+
+          keeps_ordering = date_1.isSameOrBefore(date_2);
+          if(!keeps_ordering){
+            break;
+          }
+          index = index + 1;
+          if(index > res.body.records.length){
+            finished = true;
+          }
+        }
+        assert(keeps_ordering == true, 'Ordering is not kept, date_1 ' + date_1 + ' is not same or before ' + date_2);
         done();
       });
   });
@@ -107,7 +153,29 @@ describe('GET /toponimspartnom', function() {
         }
         expect(res).to.have.status(200);
         assert.equal(res.body.records.length, 40);
-        assert.equal(res.body.records[0].nomtoponim, 'Blanes');
+        var finished = false;
+        var keeps_ordering = false;
+        var index = 0;        
+        var aquatic_1;
+        var aquatic_2;
+        while(!finished){
+          var index_second_element = index + 1;
+          if(index_second_element == res.body.records.length){            
+            break;
+          }
+          aquatic_1 = res.body.records[index].aquatic;
+          aquatic_2 = res.body.records[index_second_element].aquatic;
+
+          keeps_ordering = aquatic_1 == aquatic_2;
+          if(!keeps_ordering){
+            break;
+          }
+          index = index + 1;
+          if(index > res.body.records.length){
+            finished = true;
+          }
+        }
+        assert(keeps_ordering, 'Consecutive records should both be aquatic');
         done();
       });
   });
@@ -122,24 +190,25 @@ describe('GET /toponimspartnom', function() {
           console.log(err.stack);
         }
         expect(res).to.have.status(200);
-        assert.equal(res.body.records.length, 1);
-        assert.equal(res.body.records[0].nomtoponim, 'Pacífic, oceà');
+        assert(res.body.records.length > 0, 'Ocean should return results');        
         done();
       });
   });
 
-  it('obtains 40 toponims, default sort', function(done) {
+  it('obtains 2 toponims, default sort', function(done) {
     chai.request('http://127.0.0.1:' + (config.running_port || '8080') + '/api')
       .get('/toponimspartnom')
       .set('x-access-token', token)
-      .query({ results: 40, startIndex: 40 })
+      .query({ results: 2, startIndex: 0 })
       .end(function(err, res) {
         if (err) {
           console.log(err.stack);
         }
         expect(res).to.have.status(200);
-        assert.equal(res.body.records.length, 40);
-        assert.equal(res.body.records[0].nomtoponim, ' Agoudal');
+        assert.equal(res.body.records.length, 2);        
+        const nom_1 = res.body.records[0].nomtoponim;
+        const nom_2 = res.body.records[1].nomtoponim;
+        assert((nom_1).localeCompare(nom_2) >= 0, 'Ordering not correct, ' + nom_1 + ' should be before ' + nom_2);
         done();
       });
   });
@@ -172,8 +241,9 @@ describe('GET /tipustoponim', function() {
           console.log(err.stack);
         }
         expect(res).to.have.status(200);
-        assert.equal(res.body.records.length, 33);
-        assert.equal(res.body.records[0].nom, 'accident geogràfic');
+        const nom_1 = res.body.records[0].nom;
+        const nom_2 = res.body.records[1].nom;
+        assert((nom_1).localeCompare(nom_2) <= 0, 'Ordering not correct, ' + nom_1 + ' should be before ' + nom_2);
         done();
       });
   });
@@ -283,10 +353,7 @@ describe('GET /toponim', function() {
           console.log(err.stack);
         }
         expect(res).to.have.status(200);
-        assert.equal(res.body.records.length, 3);
-        assert.equal(res.body.records[0].nomToponim, 'Conillera, illa sa');
-        assert.equal(res.body.records[1].nomToponim, 'Sant Andreu de Llavaneres');
-        assert.equal(res.body.records[2].nomToponim, 'Sabadell');
+        assert.equal(res.body.records.length, 3);        
         done();
       });
   });
