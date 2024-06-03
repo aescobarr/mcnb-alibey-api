@@ -65,11 +65,13 @@ if(config.log_level != 'none'){
         winston.format.colorize(),
         winston.format.simple()
       ),
+    // eslint-disable-next-line no-unused-vars
     level: function(req, res) { return config.log_level; },
     meta: true, // optional: control whether you want to log the meta data about the request (default to true)
     msg: 'HTTP {{req.statusCode}} {{req.method}} {{req.url}}', // optional: customize the default logging message. E.g. "{{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}
     expressFormat: true, // Use the default Express/morgan request formatting. Enabling this will override any msg if true. Will only output colors with colorize set to true
     colorize: false, // Color the text and status code, using the Express/morgan color palette (text: gray, status: default green, 3XX cyan, 4XX yellow, 5XX red).
+    // eslint-disable-next-line no-unused-vars
     ignoreRoute: function(req, res) { return false; } // optional: allows to skip some log messages based on request and/or response
   }));
 }
@@ -102,7 +104,7 @@ var errorCodeIsHttpValid = function(code){
 };
 
 // ERROR HANDLERS ------------------------------------
-
+// eslint-disable-next-line no-unused-vars
 app.use(function(err, req, res, next) {
   var status = 500;
   if (errorCodeIsHttpValid(err.code)){

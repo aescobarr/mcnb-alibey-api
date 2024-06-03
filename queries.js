@@ -18,6 +18,7 @@ const pg = require('knex')({
   },
 });
 
+// eslint-disable-next-line no-unused-vars
 function getVersion(req, res, next) {
   res.status(200).json({
     version: '2.0.0'
@@ -444,6 +445,7 @@ function getToponimsGeo(req, res, next) {
   });  
 }
 
+// eslint-disable-next-line no-unused-vars
 async function getAuth(req, res, next) {
   const params = req.query;
   const username = params.user;
