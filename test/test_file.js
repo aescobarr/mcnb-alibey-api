@@ -14,6 +14,7 @@ chai.use(chaiHttp);
 
 describe('GET /toponimspartnom', function() {
   var token = '';
+
   it('authenticates and obtains a valid json web token', function(done) {
     chai.request('http://127.0.0.1:' + (process.env.RUNNING_PORT || '8080') + '/api')
       .get('/auth')
@@ -216,6 +217,7 @@ describe('GET /toponimspartnom', function() {
 
 describe('GET /tipustoponim', function() {
   var token = '';
+
   it('authenticates and obtains a valid json web token', function(done) {
     chai.request('http://127.0.0.1:' + (process.env.RUNNING_PORT || '8080') + '/api')
       .get('/auth')
@@ -311,6 +313,7 @@ describe('GET /tipustoponim', function() {
 
 describe('GET /toponim', function() {
   var token = '';
+  
   it('authenticates and obtains a valid json web token', function(done) {
     chai.request('http://127.0.0.1:' + (process.env.RUNNING_PORT || '8080') + '/api')
       .get('/auth')
