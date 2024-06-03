@@ -4,3 +4,4 @@ reference.txt
 config.js
 comparacio_sortides_vell_nou.txt
 .vscode/
+.env

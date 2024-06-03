@@ -1,0 +1,12 @@
+SECRET_KEY="secret"
+NODE_ENV="development"
+SQL_HOST="localhost"
+SQL_PORT=5432
+SQL_DATABASE="api_database"
+SQL_USER="api_user"
+SQL_PASSWORD="secret"
+RUNNING_PORT=8000
+LOG_LEVEL="debug"
+TEST_USER_NAME="some_test_user"
+TEST_USER_PWD="some_password"
+

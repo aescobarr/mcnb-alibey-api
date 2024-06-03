@@ -1,7 +1,7 @@
 'use strict';
 
 var jwt = require('jsonwebtoken');
-var config = require('./config').get(process.env.NODE_ENV);
+require('dotenv').config();
 
 function verifyToken(req, res, next) {
   var token;
@@ -13,7 +13,7 @@ function verifyToken(req, res, next) {
     }
   }
 
-  jwt.verify(token, config.secret, function(err, decoded) {
+  jwt.verify(token, process.env.SECRET_KEY, function(err, decoded) {
     if (err)
       return res.status(500).send({
         auth: false, message: 'Failed to authenticate token.',

@@ -6,16 +6,16 @@
 const express = require('express');// call express
 const app = express();// define our app using express
 
+require('dotenv').config();
 
 const db = require('./queries.js');
 const VerifyToken = require('./verify');
 const HttpStatus = require('http-status-codes');
 
-const config = require('./config.js').get(process.env.NODE_ENV);
 const winston = require('winston');
 const expressWinston = require('express-winston');
 
-const port = config.running_port || 8080;// set our port
+const port = process.env.RUNNING_PORT || 8080;// set our port
 
 // ROUTES FOR OUR API
 // =============================================================================
@@ -55,7 +55,7 @@ router_v1.get('/version',  db.getVersion);
 
 // LOGGING --------------------------------------------
 
-if(config.log_level != 'none'){
+if(process.env.LOG_LEVEL != 'none'){
   app.use(expressWinston.logger({
     transports: [
       new winston.transports.Console()
@@ -66,7 +66,7 @@ if(config.log_level != 'none'){
         winston.format.simple()
       ),
     // eslint-disable-next-line no-unused-vars
-    level: function(req, res) { return config.log_level; },
+    level: function(req, res) { return process.env.LOG_LEVEL; },
     meta: true, // optional: control whether you want to log the meta data about the request (default to true)
     msg: 'HTTP {{req.statusCode}} {{req.method}} {{req.url}}', // optional: customize the default logging message. E.g. "{{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}
     expressFormat: true, // Use the default Express/morgan request formatting. Enabling this will override any msg if true. Will only output colors with colorize set to true
@@ -121,6 +121,7 @@ app.use(function(err, req, res, next) {
 // =============================================================================
 app.listen(port);
 console.log('Listening on port ' + port);
+console.log('Node env ' + process.env.NODE_ENV);
 
 
 module.exports = router;

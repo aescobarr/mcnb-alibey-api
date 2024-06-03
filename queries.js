@@ -1,20 +1,20 @@
 'use strict';
 
 const jwt = require('jsonwebtoken');
-const config = require('./config.js').get(process.env.NODE_ENV);
+require('dotenv').config();
+
 const moment = require('moment');
 const val = require('./validators.js');
 
 const pg = require('knex')({
   client: 'pg',
-  connection: {
-    //connectionString: '',
-    host: config.database_host,
-    port: config.database_port,
-    user: config.database_user,
-    database: config.database_name,
-    password: config.database_password,
-    ssl: config['DB_SSL'] ? { rejectUnauthorized: false } : false,
+  connection: {    
+    host: process.env.SQL_HOST,
+    port: process.env.SQL_PORT,
+    user: process.env.SQL_USER,
+    database: process.env.SQL_DATABASE,
+    password: process.env.SQL_PASSWORD,
+    ssl: process.env.DB_SSL ? { rejectUnauthorized: false } : false,
   },
 });
 
@@ -469,7 +469,7 @@ async function getAuth(req, res, next) {
         message: 'Authentification failed',
       });
     }else{
-      var token = jwt.sign({ id: authentication.id }, config.secret, {
+      var token = jwt.sign({ id: authentication.id }, process.env.SECRET_KEY, {
         expiresIn: 86400, // expires in 24 hours
       });
       res.status(200)
