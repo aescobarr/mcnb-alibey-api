@@ -10,6 +10,7 @@ var config = {
     database_user: the_database_user,
     database_password: the_database_user_password,
     running_port: the_running_port,
+    log_level: 'none',
 	},
   development: {
     secret: 'some_secret',
@@ -19,6 +20,7 @@ var config = {
     database_user: the_database_user,
     database_password: the_database_user_password,
     running_port: the_running_port,
+    log_level: 'debug',
 	},
 	default: {
     secret: 'some_secret',
@@ -28,6 +30,7 @@ var config = {
     database_user: the_database_user,
     database_password: the_database_user_password,
     running_port: the_running_port,
+    log_level: 'debug',
 	},
   test: {
     secret: 'some_secret',
@@ -39,6 +42,7 @@ var config = {
     test_user_name: 'xxxxx', // these are used only for tests
     test_user_pwd: 'yyyyy', // these are used only for tests
     running_port: the_running_port,
+    log_level: 'info',
   },
 	// define as many envs as you want
 };
