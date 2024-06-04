@@ -6,6 +6,8 @@ require('dotenv').config();
 const moment = require('moment');
 const val = require('./validators.js');
 
+const package_json = require('./package.json');
+
 const pg = require('knex')({
   client: 'pg',
   connection: {    
@@ -21,7 +23,7 @@ const pg = require('knex')({
 // eslint-disable-next-line no-unused-vars
 function getVersion(req, res, next) {
   res.status(200).json({
-    version: '2.0.0'
+    version: package_json.version
   });  
 }
 
