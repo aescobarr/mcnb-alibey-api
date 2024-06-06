@@ -464,7 +464,7 @@ async function getAuth(req, res, next) {
 
   try {    
     const authentication = await pg("auth_user").where('username',username).andWhere('password', pwd);    
-    if(authentication==null){
+    if(authentication==null || authentication.length == 0){
       res.status(401)
       .json({
         success: true,
