@@ -1,7 +1,7 @@
 {
   "name": "djangoref_api",
-  "version": "1.0.0",
-  "description": "",
+  "version": "2.0.0",
+  "description": "Express API for mcnb-alibey",
   "main": "app.js",
   "scripts": {
     "lint": "eslint .",
