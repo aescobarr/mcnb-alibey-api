@@ -1,0 +1,12 @@
+SECRET_KEY="secret"
+NODE_ENV="development"
+SQL_HOST="localhost"
+SQL_PORT=5432
+SQL_DATABASE="djangoref"
+SQL_USER="aplicacio_georef"
+SQL_PASSWORD="aplicacio_georef"
+RUNNING_PORT=8000
+LOG_LEVEL="debug"
+TEST_USER_NAME="apibioexplora"
+TEST_USER_PWD="pbkdf2_sha256$36000$3UyN5sOOo1h2$tTGHtpu2//bHBR0l4RiLHRYdIQWt+PoBlEpjzzPnizo="
+
