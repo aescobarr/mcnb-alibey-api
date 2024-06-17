@@ -8,9 +8,35 @@ var chai = require('chai');
 var chaiHttp = require('chai-http');
 const moment = require('moment');
 var assert = require('assert');
+const { func } = require('joi');
 var expect = chai.expect;
 
 chai.use(chaiHttp);
+
+describe('GET /version', function(){
+  it('checks rate limiting header is there', function(done) {
+    chai.request('http://127.0.0.1:' + (process.env.RUNNING_PORT || '8080') + '/api')
+      .get('/version')            
+      .end(function(err, res) {
+        if (err) {
+          console.log(err.stack);
+        }
+        expect(res).to.have.header('ratelimit-policy');        
+        done();
+      });
+  });
+  it('checks rate limit policy value is correct', function(done) {
+    chai.request('http://127.0.0.1:' + (process.env.RUNNING_PORT || '8080') + '/api')
+      .get('/version')            
+      .end(function(err, res) {
+        if (err) {
+          console.log(err.stack);
+        }
+        assert.equal(res.headers['ratelimit-limit'], '200');
+        done();
+      });
+  });
+})
 
 describe('GET /toponimspartnom', function() {
   var token = '';
@@ -22,7 +48,7 @@ describe('GET /toponimspartnom', function() {
       .end(function(err, res) {
         if (err) {
           console.log(err.stack);
-        }
+        }        
         expect(res).to.have.status(200);
         token = res.body.token;
         done();
