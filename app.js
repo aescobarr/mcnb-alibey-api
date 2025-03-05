@@ -43,6 +43,7 @@ router.get('/tipustoponim.htm', [VerifyToken, limiter], db.getTipusToponims);
 router.get('/toponimsgeo', [VerifyToken, limiter], db.getToponimsGeo);
 router.get('/toponimsgeo.htm', [VerifyToken, limiter], db.getToponimsGeo);
 router.get('/toponim', [VerifyToken, limiter], db.getToponim);
+router.get('/toponim/:id', [limiter], db.getToponimId);
 router.get('/toponim.htm', [VerifyToken, limiter], db.getToponim);
 router.get('/arbre', [VerifyToken, limiter], db.getArbre);
 router.get('/arbre.htm', [VerifyToken, limiter], db.getArbre);

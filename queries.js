@@ -27,6 +27,111 @@ function getVersion(req, res, next) {
   });  
 }
 
+function getToponimId(req, res, next) {
+  var params = req.params;
+
+  const q = pg("toponim").join("toponims_api","toponim.id","=","toponims_api.id");
+  const q_versions = pg("toponimsversio_api");
+
+  q.where('toponims_api.id', params.id);
+  q_versions.where('idtoponim', params.id);
+
+  q_versions.select()
+  .then(function(rows){
+      for (var i = 0; i < rows.length; i++){
+        var elem = rows[i];
+        var formatted_date_string = 'Data no establerta';
+        if (elem.datacaptura != null){
+          var formatted_date = moment(elem.datacaptura);
+          formatted_date_string = formatted_date.format('DD/MM/YYYY');
+        }
+        var copied_elem = {
+          id: elem.id,
+          nom: elem.nom,
+          nomToponim: elem.nomtoponim,
+          tipus: elem.tipus,
+          versio: elem.versio,
+          qualificadorversio: elem.qualificadorversio,
+          recursCaptura: elem.recurscaptura,
+          sistrefrecurs: elem.sistrefrecurs,
+          dataCaptura: formatted_date_string,
+          coordXOriginal: elem.coordxoriginal,
+          coordYOriginal: elem.coordyoriginal,
+          coordz: elem.coordz,
+          incertesaz: elem.incertesaz,
+          georeferenciatPer: elem.georeferenciatper,
+          observacions: elem.observacions,
+          coordXCentroide: elem.coordxcentroide,
+          coordYCentroide: elem.coordycentroide,
+          incertesaCoord: elem.incertesacoord,
+          idtoponim: elem.idtoponim
+        };
+        if (versions_map[copied_elem.idtoponim] == null){
+          versions_map[copied_elem.idtoponim] = [];
+        }
+        versions_map[copied_elem.idtoponim].push(copied_elem);
+      }
+      q.select()
+      .then(function(data){
+        var original_data_json = JSON.stringify(data);
+        var data_copy = JSON.parse(original_data_json);
+        for (var i = 0; i < data_copy.length; i++){
+          var elem = data_copy[i];
+          elem.versions = versions_map[elem.id];
+          elem.llinatge = [];
+          var elems_llinatge = elem.denormalized_toponimtree.split('#');
+          for (var j=0; j < elems_llinatge.length; j++){
+            var elem_llinatge = elems_llinatge[j].split('$');
+            elem.llinatge.push({ id: elem_llinatge[0], nom: elem_llinatge[1]});
+          }
+        }
+        if (single_id){
+          res.status(200)
+            .json({
+              totalRecords: data_copy.length,
+              success: true,
+              message: 'OK',
+              recordsReturned: data_copy.length,
+              id: data_copy[0].id,
+              aquatic: data_copy[0].aquatic === false ? 'No' : 'Sí',
+              nomToponim: data_copy[0].nomtoponim,
+              tipus: data_copy[0].tipus,
+              nom: data_copy[0].nom,
+              versions: data_copy[0].versions,
+              llinatge: data_copy[0].llinatge.reverse()
+            });
+        } else {
+          var result_arr = [];
+          for (i = 0; i < data_copy.length; i++){
+            result_arr.push({
+              id: data_copy[i].id,
+              aquatic: data_copy[i].aquatic === false ? 'No' : 'Sí',
+              nomToponim: data_copy[i].nomtoponim,
+              tipus: data_copy[i].tipus,
+              nom: data_copy[i].nom,
+              versions: data_copy[i].versions,
+              llinatge: data_copy[i].llinatge.reverse()
+            });
+          }
+          res.status(200)
+            .json({
+              totalRecords: data_copy.length,
+              success: true,
+              message: 'OK',
+              recordsReturned: data_copy.length,
+              records: result_arr
+            });
+        }
+      })
+      .catch(function(error){
+        return next(error);
+      });
+  })
+  .catch(function(error){
+    return next(error);
+  });
+}
+
 function getToponim(req, res, next) {
 
   var params = req.query;
@@ -489,6 +594,7 @@ async function getAuth(req, res, next) {
 
 module.exports = {
   getToponimsPartNom: getToponimsPartNom,
+  getToponimId: getToponimId,
   getAuth: getAuth,
   getTipusToponims: getTipusToponims,
   getToponim: getToponim,
