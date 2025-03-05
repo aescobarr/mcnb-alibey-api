@@ -86,8 +86,7 @@ function getToponimId(req, res, next) {
             var elem_llinatge = elems_llinatge[j].split('$');
             elem.llinatge.push({ id: elem_llinatge[0], nom: elem_llinatge[1]});
           }
-        }
-        console.log(data_copy.length);
+        }        
         if( data_copy.length == 0 ){
           res.status(404)
           .json({
