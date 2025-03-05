@@ -36,6 +36,8 @@ function getToponimId(req, res, next) {
   q.where('toponims_api.id', params.id);
   q_versions.where('idtoponim', params.id);
 
+  var versions_map = {};
+
   q_versions.select()
   .then(function(rows){
       for (var i = 0; i < rows.length; i++){
@@ -85,43 +87,29 @@ function getToponimId(req, res, next) {
             elem.llinatge.push({ id: elem_llinatge[0], nom: elem_llinatge[1]});
           }
         }
-        if (single_id){
-          res.status(200)
-            .json({
-              totalRecords: data_copy.length,
-              success: true,
-              message: 'OK',
-              recordsReturned: data_copy.length,
-              id: data_copy[0].id,
-              aquatic: data_copy[0].aquatic === false ? 'No' : 'Sí',
-              nomToponim: data_copy[0].nomtoponim,
-              tipus: data_copy[0].tipus,
-              nom: data_copy[0].nom,
-              versions: data_copy[0].versions,
-              llinatge: data_copy[0].llinatge.reverse()
-            });
-        } else {
-          var result_arr = [];
-          for (i = 0; i < data_copy.length; i++){
-            result_arr.push({
-              id: data_copy[i].id,
-              aquatic: data_copy[i].aquatic === false ? 'No' : 'Sí',
-              nomToponim: data_copy[i].nomtoponim,
-              tipus: data_copy[i].tipus,
-              nom: data_copy[i].nom,
-              versions: data_copy[i].versions,
-              llinatge: data_copy[i].llinatge.reverse()
-            });
-          }
-          res.status(200)
-            .json({
-              totalRecords: data_copy.length,
-              success: true,
-              message: 'OK',
-              recordsReturned: data_copy.length,
-              records: result_arr
-            });
-        }
+        console.log(data_copy.length);
+        if( data_copy.length == 0 ){
+          res.status(404)
+          .json({
+            success: false,
+            message: 'Not found'
+          });
+        }else{
+          res.status(200)         
+          .json({
+            totalRecords: data_copy.length,
+            success: true,
+            message: 'OK',
+            recordsReturned: data_copy.length,
+            id: data_copy[0].id,
+            aquatic: data_copy[0].aquatic === false ? 'No' : 'Sí',
+            nomToponim: data_copy[0].nomtoponim,
+            tipus: data_copy[0].tipus,
+            nom: data_copy[0].nom,
+            versions: data_copy[0].versions,
+            llinatge: data_copy[0].llinatge.reverse()
+          }); 
+        }       
       })
       .catch(function(error){
         return next(error);

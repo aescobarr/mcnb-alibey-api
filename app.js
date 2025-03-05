@@ -62,6 +62,7 @@ router_v1.get('/sitetype.htm', [VerifyToken, limiter], db.getTipusToponims);
 router_v1.get('/sitegeo', [VerifyToken, limiter], db.getToponimsGeo);
 router_v1.get('/sitegeo.htm', [VerifyToken, limiter], db.getToponimsGeo);
 router_v1.get('/site', [VerifyToken, limiter], db.getToponim);
+router_v1.get('/site/:id', [limiter], db.getToponimId);
 router_v1.get('/site.htm', [VerifyToken, limiter], db.getToponim);
 router_v1.get('/tree', [VerifyToken, limiter], db.getArbre);
 router_v1.get('/tree.htm', [VerifyToken, limiter], db.getArbre);
