@@ -1,5 +1,10 @@
 # Ali-Bey API
 
+> [!WARNING]
+**This repository has been archived and is no longer maintained. The Ali-Bey API is currently included in the dockerized version, which is actively maintained here: [alibey_docker](https://github.com/aescobarr/alibey_docker)**
+
+
+
 Ali-Bey API - Exposes [Ali-Bey](https://github.com/aescobarr/mcnb-alibey) data through a REST API, built using [Express](https://expressjs.com/).
 
 This project is tightly related to [Ali-Bey](https://github.com/aescobarr/mcnb-alibey) and is not meant to work as a separate piece since it uses Ali-Bey's underlying database.
